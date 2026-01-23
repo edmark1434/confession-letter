@@ -1,3 +1,5 @@
+/* Import a bubbly, rounded font */
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
 @import "tailwindcss";
 @plugin "daisyui";
 
@@ -8,17 +10,37 @@ html, body, #root {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  font-family: 'Quicksand', sans-serif; /* Recommended bubbly, professional font */
+  font-family: 'Quicksand', sans-serif; /* Applied Quicksand */
+  background-color: #FFF5F7; /* */
 }
 
-/* Glassmorphism */
+/* Enhanced Glassmorphism */
 .cute-glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 4px solid rgba(255, 255, 255, 0.9); /* Thicker white border for a "sticker" look */
 }
 
-/* Gentle Pearlescent Shine */
+/* Bubbly 3D Button Style */
+.btn-bubbly {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 6px 0px #ff6b8e; /* Darker pink bottom shadow for 3D effect */
+  position: relative;
+  top: 0;
+}
+
+.btn-bubbly:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0px #ff6b8e;
+}
+
+.btn-bubbly:active {
+  transform: translateY(4px); /* Pushes the button "down" */
+  box-shadow: 0 2px 0px #ff6b8e;
+}
+
+/* Soft Pearlescent Shine */
 .gentle-shine {
   background: linear-gradient(
     120deg,
@@ -28,50 +50,40 @@ html, body, #root {
     #FF85A1 55%,
     #FF85A1 100%
   );
-  background-size: 300% auto;
+  background-size: 200% auto;
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  transition: 0.8s ease-out;
+  animation: shine-text 5s linear infinite;
 }
 
-.gentle-shine:hover {
-  background-position: 100% center;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.6));
+@keyframes shine-text {
+  to { background-position: 200% center; }
 }
 
-/* Bubbly Animations */
-.animate-float {
-  animation: softFloat 5s ease-in-out infinite;
-}
-
-@keyframes softFloat {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-15px) rotate(2deg); }
-}
-
-/* Cute Hearts Background */
+/* Improved Heart Animation */
 .hearts li {
   position: absolute;
-  display: block;
   list-style: none;
-  width: 20px;
-  height: 20px;
-  background: #FFD1DC; /* Softer pastel pink */
-  animation: float-hearts 25s linear infinite;
+  background: #FFD1DC;
+  animation: float-hearts 20s linear infinite;
   bottom: -100px;
   clip-path: path('M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z');
-  opacity: 0.3;
+  opacity: 0.4;
 }
-
-/* Randomize heart behavior */
-.hearts li:nth-child(1) { left: 10%; width: 50px; height: 50px; animation-delay: 0s; }
-.hearts li:nth-child(2) { left: 20%; width: 25px; height: 25px; animation-delay: 2s; animation-duration: 12s; }
-.hearts li:nth-child(3) { left: 75%; width: 30px; height: 30px; animation-delay: 4s; }
-.hearts li:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 20s; }
 
 @keyframes float-hearts {
   0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-  10% { opacity: 0.4; }
+  20% { opacity: 0.5; }
   100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
+}
+
+/* Floating Animation for Icons */
+.animate-float-slow {
+  animation: softFloat 4s ease-in-out infinite;
+}
+
+@keyframes softFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.05); }
 }
