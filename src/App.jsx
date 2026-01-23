@@ -69,7 +69,7 @@ function App() {
           </header>
 
           <button className="btn-bubbly w-full py-4 bg-gradient-to-r from-[#FF85A1] to-[#FFB3C6] text-white font-black text-lg rounded-xl border-none shadow-md">
-            Create a Letter
+              <Link to="/letter" className="w-full">Create a Letter</Link>
           </button>
         </div>
       </main>
