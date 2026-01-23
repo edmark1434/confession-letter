@@ -73,7 +73,7 @@ function App() {
           </div>
 
           <footer className="text-xs uppercase tracking-[0.5em] text-[#FFB3C6] font-bold">
-            💖 Spread the Love 💖
+            - Spread the Love -
           </footer>
         </div>
       </main>
