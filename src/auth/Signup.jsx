@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle, Heart, ArrowLeft } from 'lucide-react';
 import { getSignupErrors } from '../utils/validation';
+import HeartBg from '../components/HeartBg';
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({ email: '', username: '', password: '', confirmPassword: '' });
@@ -30,7 +31,10 @@ const SignupPage = () => {
 
   return (
     <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-8 min-h-screen bg-[#FFF5F7]">
-      <div className="cute-glass p-6 md:p-10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(255,182,193,0.15)] w-full max-w-md space-y-4">
+      {/* Reusable Heart Background */}
+      <HeartBg count={6} />
+
+        <div className="cute-glass p-6 md:p-10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(255,182,193,0.15)] w-full max-w-md space-y-4">
 
         {/* Responsive Header: Return | Logo | Spacer */}
         <div className="flex items-center justify-between mb-2">
