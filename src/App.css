@@ -87,3 +87,38 @@ html, body, #root {
   0%, 100% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-10px) scale(1.05); }
 }
+
+.btn-bubbly-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none; /* Remove underline */
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 6px 0px #ff6b8e;
+  position: relative;
+  top: 0;
+  cursor: pointer;
+}
+
+.btn-bubbly-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0px #ff6b8e;
+  text-decoration: none; /* Ensure no underline on hover */
+}
+
+.btn-bubbly-link:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0px #ff6b8e;
+}
+
+/* Style for regular text links */
+.text-link {
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.text-link:hover {
+  text-decoration: none;
+  transform: scale(1.1);
+}
+
