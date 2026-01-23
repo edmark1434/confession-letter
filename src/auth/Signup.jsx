@@ -1,310 +1,122 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, Heart, ArrowLeft } from 'lucide-react';
+import { getSignupErrors } from '../utils/validation';
+import HeartBg from '../components/HeartBg';
 
 const SignupPage = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    username: '',
-    password: '',
-    confirmPassword: ''
-  });
+  const [formData, setFormData] = useState({ email: '', username: '', password: '', confirmPassword: '' });
   const [errors, setErrors] = useState({});
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-    // Clear error for this field when user starts typing
-    if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: ''
-      });
-    }
-  };
-
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePassword = (password) => {
-    const errors = [];
-
-    if (password.length < 6) {
-      errors.push('At least 6 characters');
-    }
-    if (!/[A-Z]/.test(password)) {
-      errors.push('At least 1 capital letter');
-    }
-    if (!/[0-9]/.test(password)) {
-      errors.push('At least 1 number');
-    }
-    if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) {
-      errors.push('At least 1 special character');
-    }
-
-    return errors;
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Email validation
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    // Username validation
-    if (!formData.username.trim()) {
-      newErrors.username = 'Username is required';
-    } else if (formData.username.length < 3) {
-      newErrors.username = 'Username must be at least 3 characters';
-    }
-
-    // Password validation
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else {
-      const passwordErrors = validatePassword(formData.password);
-      if (passwordErrors.length > 0) {
-        newErrors.password = passwordErrors.join(', ');
-      }
-    }
-
-    // Confirm password validation
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-
-    return newErrors;
-  };
-
-  const getPasswordValidation = () => {
-    if (!formData.password) return null;
-
-    const checks = [
-      { label: 'At least 6 characters', valid: formData.password.length >= 6 },
-      { label: 'At least 1 capital letter', valid: /[A-Z]/.test(formData.password) },
-      { label: 'At least 1 number', valid: /[0-9]/.test(formData.password) },
-      { label: 'At least 1 special character', valid: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(formData.password) }
-    ];
-
-    return checks;
-  };
+  const [showPass, setShowPass] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const validationErrors = validateForm();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    // Prevent multiple submissions
     if (isSubmitting) return;
 
-    setIsSubmitting(true);
+    const valErrors = getSignupErrors(formData);
+    setErrors(valErrors);
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Handle successful signup
-      console.log('Signup successful:', formData);
-      alert('Account created successfully!');
-
-      // Reset form
-      setFormData({
-        email: '',
-        username: '',
-        password: '',
-        confirmPassword: ''
-      });
-      setErrors({});
-    } catch (error) {
-      console.error('Signup error:', error);
-      setErrors({ submit: 'Signup failed. Please try again.' });
-    } finally {
-      setIsSubmitting(false);
+    if (Object.keys(valErrors).length === 0) {
+      setIsSubmitting(true);
+      try {
+        await new Promise(r => setTimeout(r, 2000));
+        alert("Account Created!");
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
-  const passwordChecks = getPasswordValidation();
-
   return (
-    <main className="relative z-10 flex-1 flex items-center justify-center px-6 min-h-[80vh]">
-      <div className="cute-glass p-10 rounded-[3rem] shadow-[0_30px_100px_rgba(255,182,193,0.2)] w-full max-w-md space-y-6">
-        <div className="form-header-left">
-          <Link to="/" className="back-button-circle-left">
-            <span className="arrow-bounce-left">←</span>
+    <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-8 min-h-screen bg-[#FFF5F7]">
+      {/* Reusable Heart Background */}
+      <HeartBg count={6} />
+
+        <div className="cute-glass p-6 md:p-10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(255,182,193,0.15)] w-full max-w-md space-y-4">
+
+        {/* Responsive Header: Return | Logo | Spacer */}
+        <div className="flex items-center justify-between mb-2">
+          <Link to="/" className="p-2 rounded-full bg-white/50 text-[#FF85A1] hover:bg-white transition-colors shadow-sm">
+            <ArrowLeft size={18} />
           </Link>
-          <div className="form-header-content">
-            <h2 className="text-4xl font-black text-[#FF85A1]">Join LuvNote</h2>
-            <p className="text-[#FFB3C6] font-bold mt-2">Start your digital love story</p>
+          <div className="flex items-center gap-2 pr-2">
+            <Heart fill="#FF85A1" color="#FF85A1" size={22} className={isSubmitting ? "animate-spin" : ""} />
+            <span className="text-xl font-black text-[#FF85A1] tracking-tighter">LuvNote</span>
           </div>
+          <div className="w-9"></div>
         </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* Email Field */}
+        <form className="space-y-3" onSubmit={handleSubmit}>
           <div>
             <input
-              type="email"
-              name="email"
-              placeholder="Email Address"
-              value={formData.email}
-              onChange={handleChange}
-              className={`w-full p-4 rounded-2xl border-2 focus:border-[#FF85A1] outline-none transition-colors font-bold text-[#FF85A1] placeholder:text-[#FFD1DC] bg-white/50 ${
-                errors.email ? 'border-[#FF6B8E]' : 'border-[#FFD1DC]'
-              } ${formData.email && !errors.email && validateEmail(formData.email) ? 'border-[#8AFFB3]' : ''}`}
+              type="email" placeholder="Email Address" disabled={isSubmitting}
+              className={`w-full p-3.5 rounded-xl border-2 outline-none font-bold text-[#FF85A1] bg-white/50 focus:border-[#FF85A1] ${errors.email ? 'border-red-300' : 'border-[#FFD1DC]'}`}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
             />
-            {errors.email && (
-              <div className="error-message">
-                <AlertCircle size={14} />
-                {errors.email}
-              </div>
-            )}
+            {errors.email && <p className="text-[10px] text-red-400 font-bold px-1 mt-1 flex items-center gap-1"><AlertCircle size={12}/> {errors.email}</p>}
           </div>
 
-          {/* Username Field */}
           <div>
             <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={formData.username}
-              onChange={handleChange}
-              className={`w-full p-4 rounded-2xl border-2 focus:border-[#FF85A1] outline-none transition-colors font-bold text-[#FF85A1] placeholder:text-[#FFD1DC] bg-white/50 ${
-                errors.username ? 'border-[#FF6B8E]' : 'border-[#FFD1DC]'
-              } ${formData.username && !errors.username && formData.username.length >= 3 ? 'border-[#8AFFB3]' : ''}`}
+              type="text" placeholder="Username" disabled={isSubmitting}
+              className={`w-full p-3.5 rounded-xl border-2 outline-none font-bold text-[#FF85A1] bg-white/50 focus:border-[#FF85A1] ${errors.username ? 'border-red-300' : 'border-[#FFD1DC]'}`}
+              onChange={(e) => setFormData({...formData, username: e.target.value})}
             />
-            {errors.username && (
-              <div className="error-message">
-                <AlertCircle size={14} />
-                {errors.username}
-              </div>
-            )}
+            {errors.username && <p className="text-[10px] text-red-400 font-bold px-1 mt-1 flex items-center gap-1"><AlertCircle size={12}/> {errors.username}</p>}
           </div>
 
-          {/* Password Field */}
-          <div className="password-input-container">
+          <div className="relative">
             <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              className={`w-full p-4 rounded-2xl border-2 focus:border-[#FF85A1] outline-none transition-colors font-bold text-[#FF85A1] placeholder:text-[#FFD1DC] bg-white/50 pr-12 ${
-                errors.password ? 'border-[#FF6B8E]' : 'border-[#FFD1DC]'
-              }`}
+              type={showPass ? "text" : "password"} placeholder="Password" disabled={isSubmitting}
+              className={`w-full p-3.5 rounded-xl border-2 outline-none font-bold text-[#FF85A1] bg-white/50 pr-12 focus:border-[#FF85A1] ${errors.password ? 'border-red-300' : 'border-[#FFD1DC]'}`}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
             />
-            <button
-              type="button"
-              className="password-toggle"
-              onClick={() => setShowPassword(!showPassword)}
-              tabIndex="-1"
-            >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-[#FFB3C6]" onClick={() => setShowPass(!showPass)}>
+              {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
-            {errors.password && (
-              <div className="error-message">
-                <AlertCircle size={14} />
-                {errors.password}
-              </div>
-            )}
           </div>
+          {errors.password && <p className="text-[10px] text-red-400 font-bold leading-tight px-1"><AlertCircle size={10} className="inline mr-1"/>{errors.password}</p>}
 
-          {/* Confirm Password Field */}
-          <div className="password-input-container">
+          <div className="relative">
             <input
-              type={showConfirmPassword ? "text" : "password"}
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className={`w-full p-4 rounded-2xl border-2 focus:border-[#FF85A1] outline-none transition-colors font-bold text-[#FF85A1] placeholder:text-[#FFD1DC] bg-white/50 pr-12 ${
-                errors.confirmPassword ? 'border-[#FF6B8E]' : 'border-[#FFD1DC]'
-              } ${formData.confirmPassword && !errors.confirmPassword && formData.password === formData.confirmPassword ? 'border-[#8AFFB3]' : ''}`}
+              type={showConfirm ? "text" : "password"} placeholder="Confirm Password" disabled={isSubmitting}
+              className={`w-full p-3.5 rounded-xl border-2 outline-none font-bold text-[#FF85A1] bg-white/50 pr-12 focus:border-[#FF85A1] ${errors.confirmPassword ? 'border-red-300' : 'border-[#FFD1DC]'}`}
+              onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
             />
-            <button
-              type="button"
-              className="password-toggle"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              tabIndex="-1"
-            >
-              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-[#FFB3C6]" onClick={() => setShowConfirm(!showConfirm)}>
+              {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
-            {errors.confirmPassword && (
-              <div className="error-message">
-                <AlertCircle size={14} />
-                {errors.confirmPassword}
-              </div>
-            )}
           </div>
-
-          {/* Password Requirements Checklist - Now placed here */}
-          {formData.password && passwordChecks && (
-            <div className="mt-2 p-4 rounded-2xl bg-white/30 border-2 border-[#FFD1DC]">
-              <p className="text-[#FF85A1] font-bold text-sm mb-2">Password Requirements:</p>
-              <div className="space-y-2">
-                {passwordChecks.map((check, index) => (
-                  <div key={index} className={`flex items-center gap-3 ${
-                    check.valid ? 'text-[#8AFFB3]' : 'text-[#FFB3C6]'
-                  }`}>
-                    <div className={`flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full ${
-                      check.valid ? 'bg-[#8AFFB3]/20' : 'bg-[#FFB3C6]/20'
-                    }`}>
-                      {check.valid ? (
-                        <CheckCircle size={14} className="text-[#8AFFB3]" />
-                      ) : (
-                        <AlertCircle size={14} className="text-[#FFB3C6]" />
-                      )}
-                    </div>
-                    <span className="text-sm font-medium">{check.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {errors.submit && (
-            <div className="error-message text-center">
-              <AlertCircle size={16} />
-              {errors.submit}
-            </div>
-          )}
+          {errors.confirmPassword && <p className="text-[10px] text-red-400 font-bold px-1 mt-1 flex items-center gap-1"><AlertCircle size={12}/> {errors.confirmPassword}</p>}
 
           <button
             type="submit"
-            className={`btn-bubbly w-full py-4 bg-gradient-to-r from-[#FF85A1] to-[#FFB3C6] text-white font-black text-xl rounded-2xl shadow-lg border-none flex items-center justify-center gap-2 ${
-              isSubmitting ? 'btn-loading' : ''
-            }`}
             disabled={isSubmitting}
+            className={`btn-bubbly w-full py-4 text-white font-black text-lg rounded-xl border-none shadow-lg mt-2 transition-all
+              ${isSubmitting ? 'bg-gray-300 opacity-70 cursor-not-allowed' : 'bg-gradient-to-r from-[#FF85A1] to-[#FFB3C6] active:scale-95'}`}
           >
-            {isSubmitting ? (
-              <>
-                <div className="loading-spinner"></div>
-                Creating Account...
-              </>
-            ) : (
-              'Sign Up'
-            )}
+            {isSubmitting ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
 
-        <p className="text-center text-[#FFB3C6] font-bold text-sm">
-          Already have an account? <Link to="/login" className="text-[#FF85A1] underline hover:text-[#FF6B8E] transition-colors">Login</Link>
+        <div className="flex items-center gap-3 pt-2">
+          <div className="flex-1 h-[1px] bg-[#FFD1DC]"></div>
+          <span className="text-[#FFB3C6] text-[10px] font-bold uppercase">Or join with</span>
+          <div className="flex-1 h-[1px] bg-[#FFD1DC]"></div>
+        </div>
+
+        <button
+          disabled={isSubmitting}
+          className="w-full py-3 rounded-xl border-2 border-[#FFD1DC] bg-white text-[#FF85A1] font-bold flex items-center justify-center gap-3 text-sm shadow-sm active:scale-95 transition-all disabled:opacity-50"
+        >
+          <img src="https://www.svgrepo.com/show/355037/google.svg" className="w-4 h-4" alt="Google" />
+          Sign up with Google
+        </button>
+
+        <p className="text-center text-[#FFB3C6] font-bold text-xs pt-2">
+          Joined already? <Link to="/login" className="text-[#FF85A1] underline">Login</Link>
         </p>
       </div>
     </main>
