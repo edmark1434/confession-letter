@@ -1,44 +1,89 @@
+/* Import a bubbly, rounded font */
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
 @import "tailwindcss";
 @plugin "daisyui";
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+
+/* Standard Reset */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: 'Quicksand', sans-serif; /* Applied Quicksand */
+  background-color: #FFF5F7; /* */
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Enhanced Glassmorphism */
+.cute-glass {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 4px solid rgba(255, 255, 255, 0.9); /* Thicker white border for a "sticker" look */
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Bubbly 3D Button Style */
+.btn-bubbly {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 6px 0px #ff6b8e; /* Darker pink bottom shadow for 3D effect */
+  position: relative;
+  top: 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.btn-bubbly:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0px #ff6b8e;
 }
 
-.card {
-  padding: 2em;
+.btn-bubbly:active {
+  transform: translateY(4px); /* Pushes the button "down" */
+  box-shadow: 0 2px 0px #ff6b8e;
 }
 
-.read-the-docs {
-  color: #888;
+/* Soft Pearlescent Shine */
+.gentle-shine {
+  background: linear-gradient(
+    120deg,
+    #FF85A1 0%,
+    #FF85A1 45%,
+    #ffffff 50%,
+    #FF85A1 55%,
+    #FF85A1 100%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine-text 5s linear infinite;
+}
+
+@keyframes shine-text {
+  to { background-position: 200% center; }
+}
+
+/* Improved Heart Animation */
+.hearts li {
+  position: absolute;
+  list-style: none;
+  background: #FFD1DC;
+  animation: float-hearts 20s linear infinite;
+  bottom: -100px;
+  clip-path: path('M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z');
+  opacity: 0.4;
+}
+
+@keyframes float-hearts {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  20% { opacity: 0.5; }
+  100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
+}
+
+/* Floating Animation for Icons */
+.animate-float-slow {
+  animation: softFloat 4s ease-in-out infinite;
+}
+
+@keyframes softFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.05); }
 }
