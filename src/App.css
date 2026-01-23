@@ -1,61 +1,77 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-/* Ensure no scrolling */
+/* Standard Reset */
 html, body, #root {
   height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden;
+  font-family: 'Quicksand', sans-serif; /* Recommended bubbly, professional font */
 }
 
-/* Light Glassmorphism */
+/* Glassmorphism */
 .cute-glass {
   background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
-/* Heart Animation logic */
-.hearts {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
+/* Gentle Pearlescent Shine */
+.gentle-shine {
+  background: linear-gradient(
+    120deg,
+    #FF85A1 0%,
+    #FF85A1 45%,
+    #ffffff 50%,
+    #FF85A1 55%,
+    #FF85A1 100%
+  );
+  background-size: 300% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: 0.8s ease-out;
 }
 
+.gentle-shine:hover {
+  background-position: 100% center;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.6));
+}
+
+/* Bubbly Animations */
+.animate-float {
+  animation: softFloat 5s ease-in-out infinite;
+}
+
+@keyframes softFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(2deg); }
+}
+
+/* Cute Hearts Background */
 .hearts li {
   position: absolute;
   display: block;
   list-style: none;
   width: 20px;
   height: 20px;
-  background: #FFB3C6;
-  animation: float-hearts 20s linear infinite;
+  background: #FFD1DC; /* Softer pastel pink */
+  animation: float-hearts 25s linear infinite;
   bottom: -100px;
-  /* Making a heart shape with CSS */
   clip-path: path('M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z');
-  opacity: 0.6;
+  opacity: 0.3;
 }
 
-/* Randomize heart positions and sizes */
-.hearts li:nth-child(1) { left: 10%; width: 40px; height: 40px; animation-delay: 0s; }
+/* Randomize heart behavior */
+.hearts li:nth-child(1) { left: 10%; width: 50px; height: 50px; animation-delay: 0s; }
 .hearts li:nth-child(2) { left: 20%; width: 25px; height: 25px; animation-delay: 2s; animation-duration: 12s; }
-.hearts li:nth-child(3) { left: 70%; width: 35px; height: 35px; animation-delay: 4s; }
-.hearts li:nth-child(4) { left: 40%; width: 50px; height: 50px; animation-delay: 0s; animation-duration: 18s; }
-.hearts li:nth-child(5) { left: 65%; width: 20px; height: 20px; animation-delay: 0s; }
-.hearts li:nth-child(6) { left: 85%; width: 60px; height: 60px; animation-delay: 3s; }
-.hearts li:nth-child(7) { left: 35%; width: 45px; height: 45px; animation-delay: 7s; }
-.hearts li:nth-child(8) { left: 50%; width: 25px; height: 25px; animation-delay: 15s; }
-.hearts li:nth-child(9) { left: 15%; width: 20px; height: 20px; animation-delay: 2s; }
-.hearts li:nth-child(10) { left: 90%; width: 40px; height: 40px; animation-delay: 5s; }
+.hearts li:nth-child(3) { left: 75%; width: 30px; height: 30px; animation-delay: 4s; }
+.hearts li:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 20s; }
 
 @keyframes float-hearts {
   0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-  20% { opacity: 0.6; }
-  100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+  10% { opacity: 0.4; }
+  100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
 }
