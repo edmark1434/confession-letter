@@ -1,28 +1,39 @@
 import React from 'react';
 import { LogIn, UserPlus, PenLine, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom'; // ADD THIS IMPORT
 import './App.css';
 
 function App() {
   return (
     <div className="relative h-screen w-screen overflow-hidden flex flex-col bg-[#FFF5F7]">
+      {/* Top Navigation Bar */}
       <nav className="relative z-20 flex justify-between items-center px-10 py-8">
         <div className="flex items-center gap-3 group cursor-pointer">
           <div className="bg-white p-2 rounded-2xl shadow-sm group-hover:rotate-12 transition-transform">
             <Heart fill="#FF85A1" color="#FF85A1" size={24} />
           </div>
-          <span className="text-3xl font-extrabold text-[#FF85A1] tracking-tight gentle-shine">LuvNote</span>
+          <Link to="/" className="text-3xl font-extrabold text-[#FF85A1] tracking-tight gentle-shine">
+            LuvNote
+          </Link>
         </div>
 
         <div className="flex items-center gap-6">
-          <button className="text-[#FF85A1] font-bold hover:scale-110 transition-transform cursor-pointer text-lg flex items-center gap-2">
+          {/* Replace button with Link */}
+          <Link
+            to="/login"
+            className="text-[#FF85A1] font-bold hover:scale-110 transition-transform cursor-pointer text-lg flex items-center gap-2"
+          >
             <LogIn size={20} /> Login
-          </button>
+          </Link>
 
-          {/* New Bubbly SignUp Button */}
-          <button className="btn-bubbly bg-[#FF85A1] text-white font-bold py-3 px-8 rounded-2xl flex items-center gap-2 cursor-pointer border-none">
+          {/* Replace button with Link */}
+          <Link
+            to="/signup"
+            className="btn-bubbly bg-[#FF85A1] text-white font-bold py-3 px-8 rounded-2xl flex items-center gap-2 cursor-pointer border-none"
+          >
             <UserPlus size={20} strokeWidth={2.5} />
             SignUp
-          </button>
+          </Link>
         </div>
       </nav>
 
@@ -64,7 +75,7 @@ function App() {
           </header>
 
           <div>
-            {/* Improved Main CTA Button */}
+            {/* Keep this as a button if it doesn't navigate */}
             <button className="btn-bubbly w-full h-20 bg-gradient-to-r from-[#FF85A1] to-[#FFB3C6] text-white font-black text-2xl rounded-3xl shadow-[0_10px_25px_rgba(255,133,161,0.3)] flex items-center justify-center gap-3 cursor-pointer border-none">
               <PenLine size={28} strokeWidth={3} />
               Create a Letter

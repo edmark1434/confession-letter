@@ -87,3 +87,221 @@ html, body, #root {
   0%, 100% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-10px) scale(1.05); }
 }
+
+.btn-bubbly-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none; /* Remove underline */
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 6px 0px #ff6b8e;
+  position: relative;
+  top: 0;
+  cursor: pointer;
+}
+
+.btn-bubbly-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0px #ff6b8e;
+  text-decoration: none; /* Ensure no underline on hover */
+}
+
+.btn-bubbly-link:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0px #ff6b8e;
+}
+
+/* Style for regular text links */
+.text-link {
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.text-link:hover {
+  text-decoration: none;
+  transform: scale(1.1);
+}
+
+/* Animated Back Button */
+.back-button-circle {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF85A1, #FFB3C6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(255, 133, 161, 0.3);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  margin: 0 auto 20px;
+  cursor: pointer;
+}
+
+/* Animated Back Button - Left Aligned */
+.back-button-circle-left {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF85A1, #FFB3C6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(255, 133, 161, 0.3);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  margin-right: auto; /* Push everything else to the right */
+}
+
+.back-button-circle-left:hover {
+  transform: translateY(-3px) scale(1.1);
+  box-shadow: 0 8px 25px rgba(255, 133, 161, 0.4);
+  animation: pulse-glow 1.5s infinite alternate;
+}
+
+.back-button-circle-left:active {
+  transform: translateY(1px) scale(0.95);
+  box-shadow: 0 2px 10px rgba(255, 133, 161, 0.2);
+}
+
+/* Left-aligned header container */
+.form-header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.form-header-content {
+  text-align: left;
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 4px 15px rgba(255, 133, 161, 0.3);
+  }
+  100% {
+    box-shadow: 0 4px 25px rgba(255, 133, 161, 0.6),
+                0 0 15px rgba(255, 182, 193, 0.4);
+  }
+}
+
+/* Arrow bounce animation */
+.arrow-bounce-left {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.back-button-circle-left:hover .arrow-bounce-left {
+  animation: bounce-arrow-left 0.8s infinite alternate;
+}
+
+@keyframes bounce-arrow-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-3px);
+  }
+}
+
+/* Password toggle button */
+.password-toggle {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #FF85A1;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 5px;
+  transition: all 0.2s ease;
+}
+
+.password-toggle:hover {
+  color: #FF6B8E;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.password-input-container {
+  position: relative;
+}
+
+/* Validation styles */
+.input-error {
+  border-color: #FF6B8E !important;
+  background-color: rgba(255, 107, 142, 0.05) !important;
+}
+
+.input-valid {
+  border-color: #8AFFB3 !important;
+  background-color: rgba(138, 255, 179, 0.05) !important;
+}
+
+.error-message {
+  color: #FF6B8E;
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.success-message {
+  color: #8AFFB3;
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.validation-icon {
+  font-size: 14px;
+}
+
+/* Button loading state */
+.btn-loading {
+  opacity: 0.7;
+  cursor: not-allowed !important;
+}
+
+.btn-loading:hover {
+  transform: none !important;
+  box-shadow: 0 6px 0px #ff6b8e !important;
+}
+
+.btn-loading:active {
+  transform: none !important;
+  box-shadow: 0 6px 0px #ff6b8e !important;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
