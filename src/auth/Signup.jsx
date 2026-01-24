@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle, Heart, ArrowLeft } from 'lucide-react';
 import { getSignupErrors } from '../utils/validation';
 import HeartBg from '../components/HeartBg';
+import { useNavigate } from 'react-router-dom';
+import { registerUser } from '../repositiories/UserRepositories';
+import { SignInWithGooglePopup } from "../services/Oauth.jsx";
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({ email: '', username: '', password: '', confirmPassword: '' });
@@ -10,25 +13,36 @@ const SignupPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
 
     const valErrors = getSignupErrors(formData);
     setErrors(valErrors);
-
+    
     if (Object.keys(valErrors).length === 0) {
       setIsSubmitting(true);
       try {
-        await new Promise(r => setTimeout(r, 2000));
-        alert("Account Created!");
+        await registerUser(formData);
+        navigate('/login');
+      } catch (error) {
+        setErrors({ server: error.message });
       } finally {
         setIsSubmitting(false);
+
       }
     }
   };
-
+  const handleGoogleSignup = async () => {
+    try {
+      const result = await SignInWithGooglePopup();
+      if(!result) setErrors({ server: "Google sign-up failed. Try again later." });
+      navigate('/home');
+    } catch (error) {
+      setErrors({ server: error.message }); // show friendly error
+    }
+  };
   return (
     <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-8 min-h-screen bg-[#FFF5F7]">
       {/* Reusable Heart Background */}
@@ -51,6 +65,7 @@ const SignupPage = () => {
         <form className="space-y-3" onSubmit={handleSubmit}>
           <div>
             <input
+              required
               type="email" placeholder="Email Address" disabled={isSubmitting}
               className={`w-full p-3.5 rounded-xl border-2 outline-none font-bold text-[#FF85A1] bg-white/50 focus:border-[#FF85A1] ${errors.email ? 'border-red-300' : 'border-[#FFD1DC]'}`}
               onChange={(e) => setFormData({...formData, email: e.target.value})}
@@ -60,6 +75,7 @@ const SignupPage = () => {
 
           <div>
             <input
+              required
               type="text" placeholder="Username" disabled={isSubmitting}
               className={`w-full p-3.5 rounded-xl border-2 outline-none font-bold text-[#FF85A1] bg-white/50 focus:border-[#FF85A1] ${errors.username ? 'border-red-300' : 'border-[#FFD1DC]'}`}
               onChange={(e) => setFormData({...formData, username: e.target.value})}
@@ -69,6 +85,7 @@ const SignupPage = () => {
 
           <div className="relative">
             <input
+              required
               type={showPass ? "text" : "password"} placeholder="Password" disabled={isSubmitting}
               className={`w-full p-3.5 rounded-xl border-2 outline-none font-bold text-[#FF85A1] bg-white/50 pr-12 focus:border-[#FF85A1] ${errors.password ? 'border-red-300' : 'border-[#FFD1DC]'}`}
               onChange={(e) => setFormData({...formData, password: e.target.value})}
@@ -81,6 +98,7 @@ const SignupPage = () => {
 
           <div className="relative">
             <input
+              required
               type={showConfirm ? "text" : "password"} placeholder="Confirm Password" disabled={isSubmitting}
               className={`w-full p-3.5 rounded-xl border-2 outline-none font-bold text-[#FF85A1] bg-white/50 pr-12 focus:border-[#FF85A1] ${errors.confirmPassword ? 'border-red-300' : 'border-[#FFD1DC]'}`}
               onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
@@ -90,7 +108,7 @@ const SignupPage = () => {
             </button>
           </div>
           {errors.confirmPassword && <p className="text-[10px] text-red-400 font-bold px-1 mt-1 flex items-center gap-1"><AlertCircle size={12}/> {errors.confirmPassword}</p>}
-
+          {errors.server && <p className="text-[10px] text-red-400 font-bold px-1 mt-1 flex items-center gap-1"><AlertCircle size={12}/> {errors.server}</p>}
           <button
             type="submit"
             disabled={isSubmitting}
@@ -109,6 +127,7 @@ const SignupPage = () => {
 
         <button
           disabled={isSubmitting}
+          onClick={handleGoogleSignup}
           className="w-full py-3 rounded-xl border-2 border-[#FFD1DC] bg-white text-[#FF85A1] font-bold flex items-center justify-center gap-3 text-sm shadow-sm active:scale-95 transition-all disabled:opacity-50"
         >
           <img src="https://www.svgrepo.com/show/355037/google.svg" className="w-4 h-4" alt="Google" />
