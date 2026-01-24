@@ -13,11 +13,8 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "@tailwindcss/vite": "^4.1.18",
-<<<<<<< HEAD
-=======
     "dotenv": "^17.2.3",
     "firebase": "^12.8.0",
->>>>>>> e684f974ad3081ab9b6bef9b0a23f4c6fea3cd8d
     "framer-motion": "^12.29.0",
     "install": "^0.13.0",
     "lucide-react": "^0.562.0",
