@@ -1,13 +1,18 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FlowerBouquet from '../components/FlowerBouquets';
+import tuladmo from '../assets/tuladmo.mp3';
 import { 
   LucideHeart, LucideSparkles, LucideCalendar, 
   LucideStars, LucideQuote, LucideCoffee, 
-  LucideBookOpen, LucideArrowDownCircle, LucideMail, LucideMapPin
+  LucideBookOpen, LucideArrowDownCircle, LucideMail, LucideMapPin,
+  LucideMusic, LucideVolume2
 } from 'lucide-react';
 
 // --- CONFIGURATION (Change these to update the website) ---
+const AUDIO_URL = tuladmo;
+const SONG_TITLE = "Tulad Mo";
+
 const CONFIG = {
   // Section 2: Little Things
   imageSection2: "https://images.unsplash.com/photo-1516589174184-c68d8e5f247d?auto=format&fit=crop&q=80",
@@ -64,6 +69,8 @@ const FallingHearts = () => {
 
 const ConfessionStory = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef(null);
 
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
@@ -71,6 +78,19 @@ const ConfessionStory = () => {
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  const toggleMusic = () => {
+    if (isPlaying) audioRef.current.pause();
+    else audioRef.current.play();
+    setIsPlaying(!isPlaying);
+  };
+
+  useEffect(() => {
+    if (isOpen && !isPlaying) {
+      audioRef.current.play();
+      setIsPlaying(true);
+    }
+  }, [isOpen]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -101,6 +121,23 @@ const ConfessionStory = () => {
       `}</style>
 
       <FallingHearts />
+      <audio ref={audioRef} src={AUDIO_URL} loop />
+
+      {/* --- MUSIC PLAYER --- */}
+      {isOpen && (
+        <div className="fixed top-6 right-6 z-50">
+          <motion.button 
+            whileTap={{ scale: 0.9 }} 
+            onClick={toggleMusic} 
+            className="bg-white/80 backdrop-blur-md p-4 rounded-full shadow-lg text-rose-500 flex items-center gap-3 border border-rose-100 hover:bg-white transition-all"
+          >
+            {isPlaying ? 
+              <LucideVolume2 size={20} className="animate-pulse" /> : 
+              <LucideMusic size={20} />
+            }
+          </motion.button>
+        </div>
+      )}
 
       {/* --- SECTION 1: THE ENVELOPE LANDING --- */}
       <section id="start" className="h-screen flex items-center justify-center relative p-6 overflow-hidden">

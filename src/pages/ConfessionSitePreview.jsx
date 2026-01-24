@@ -1,14 +1,30 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FlowerBouquet from '../components/FlowerBouquets';
+import tuladmo from '../assets/tuladmo.mp3';
 import { 
   LucideHeart, LucideSparkles, LucideCalendar, 
   LucideStars, LucideQuote, LucideCoffee, 
-  LucideBookOpen, LucideArrowDownCircle, LucideMail, LucideMapPin
+  LucideBookOpen, LucideArrowDownCircle, LucideMail, LucideMapPin,
+  LucideMusic, LucideVolume2
 } from 'lucide-react';
 
 // --- CONFIGURATION (Change these to update the website) ---
+const AUDIO_URL = tuladmo;
+const SONG_TITLE = "Tulad Mo";
 
+// Helper to convert Spotify links to embed URLs
+const getSpotifyEmbedUrl = (url) => {
+  if (!url) return null;
+  
+  // Check if it's a Spotify link
+  const spotifyMatch = url.match(/spotify\.com\/(track|playlist|album)\/([a-zA-Z0-9]+)/);
+  if (spotifyMatch) {
+    const [, type, id] = spotifyMatch;
+    return `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&autoplay=1`;
+  }
+  return null;
+};
 
 // --- FALLING HEARTS EFFECT ---
 const FallingHearts = () => {
@@ -46,16 +62,42 @@ const FallingHearts = () => {
 
 const ConfessionStory = ({ externalConfig }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [sectionStep, setSectionStep] = useState(0); // 0=closed,1=likes,2=letter,3=invite
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef(null);
+  const spotifyRef = useRef(null);
 
-  const data = externalConfig || {
+  const data = externalConfig ?? {
     title: "For Someone Special",
-    imageSection2: "...",
-    littleThings: [],
-    letterBody: "...",
-    invitationDate: "...",
-    invitationLocation: "...",
+    recipientName: "You",
+    songUrl: "",
+    imageSection2: "https://scontent.fceb9-1.fna.fbcdn.net/v/t39.30808-6/474781465_533939329671558_5891960454890417856_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=110&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeEM2_W0yeeVRGhv_y6mBMVthER5qF5Q4auERHmoXlDhqwgORFZAysaEt-62ucIFPr_sFfC3uP2di_0wB94W65G1&_nc_ohc=Nu-BwR0t0zYQ7kNvwGMSjsC&_nc_oc=AdkEObgy8aSuIDRJeIBqRWeMXIk7Q3Bk5fl8BKmJICTDYk5xHHJaWIvKOo07xGGReHI&_nc_zt=23&_nc_ht=scontent.fceb9-1.fna&_nc_gid=IQOcqrQXK_rzNcK0AC-4BQ&oh=00_Afr7ylCXgGOGNZ3ZA3JCpy-I78c3Big8HDIHcMlYPBc39w&oe=697B1BA5",
+    littleThings: [
+      {
+        title: "Your Smile",
+        desc: "The way you light up a room without even trying. It's contagious and makes everything better."
+      },
+      {
+        title: "Your Laugh",
+        desc: "It's the most genuine sound I've ever heard. I could listen to it all day and never get tired."
+      },
+      {
+        title: "Your Kindness",
+        desc: "You have the most beautiful heart. The way you care for others inspires me every single day."
+      }
+    ],
+    letterBody: "From the moment we met, something changed. I find myself thinking about you more than I ever thought possible. Your presence makes ordinary moments feel extraordinary. I love how we can talk for hours about anything and everything. I love your quirks, your dreams, and the way you see the world. You've become my favorite person, and I can't imagine my days without you in them. So here I am, taking a chance, hoping you feel even a fraction of what I feel for you.",
+    invitationDate: "Any day that feels right to you.",
+    invitationLocation: "Casual Date",
     footerText: "Designed with Love • 2026"
   };
+
+  const recipientName = (externalConfig?.recipientName ?? data.recipientName ?? "You").trim() || "You";
+  const romanceNote = externalConfig?.romanceNote ?? "I never believed ordinary days could feel this magical until you walked into them. Every detail here is a page in the story I want to keep writing with you.";
+
+  const audioSource = data.songUrl || AUDIO_URL;
+  const spotifyEmbedUrl = getSpotifyEmbedUrl(data.songUrl);
+  const isSpotify = !!spotifyEmbedUrl;
 
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
@@ -63,6 +105,29 @@ const ConfessionStory = ({ externalConfig }) => {
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  const toggleMusic = () => {
+    if (isSpotify) {
+      // For Spotify, we can't control playback via iframe
+      // Just toggle the visibility state
+      setIsPlaying(!isPlaying);
+    } else {
+      if (isPlaying) audioRef.current.pause();
+      else audioRef.current.play();
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen && !isPlaying && !isSpotify) {
+      audioRef.current.play();
+      setIsPlaying(true);
+    }
+    // Spotify embed autoplays by default
+    if (isOpen && isSpotify) {
+      setIsPlaying(true);
+    }
+  }, [isOpen, isSpotify]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -93,6 +158,38 @@ const ConfessionStory = ({ externalConfig }) => {
       `}</style>
 
       <FallingHearts />
+      
+      {/* Conditional: Use Spotify embed if Spotify link, otherwise regular audio */}
+      {isSpotify && isOpen ? (
+        <iframe
+          ref={spotifyRef}
+          src={spotifyEmbedUrl}
+          className="fixed -bottom-20 left-0 opacity-0 pointer-events-none"
+          width="300"
+          height="80"
+          frameBorder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+        />
+      ) : (
+        <audio ref={audioRef} src={audioSource} loop />
+      )}
+
+      {/* --- MUSIC PLAYER --- */}
+      {isOpen && (
+        <div className="fixed top-6 right-6 z-50">
+          <motion.button 
+            whileTap={{ scale: 0.9 }} 
+            onClick={toggleMusic} 
+            className="bg-white/80 backdrop-blur-md p-4 rounded-full shadow-lg text-rose-500 flex items-center gap-3 border border-rose-100 hover:bg-white transition-all"
+          >
+            {isPlaying ? 
+              <LucideVolume2 size={20} className="animate-pulse" /> : 
+              <LucideMusic size={20} />
+            }
+          </motion.button>
+        </div>
+      )}
 
       {/* --- SECTION 1: THE ENVELOPE LANDING --- */}
       <section id="start" className="h-screen flex items-center justify-center relative p-6 overflow-hidden">
@@ -112,7 +209,10 @@ const ConfessionStory = ({ externalConfig }) => {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               whileHover={{ scale: 1.05 }}
-              onClick={() => setIsOpen(true)}
+              onClick={() => {
+                setIsOpen(true);
+                setSectionStep(1);
+              }}
               className="cursor-pointer flex flex-col items-center group"
             >
               <div className="relative w-64 h-48 md:w-80 md:h-56 bg-rose-200 rounded-xl shadow-2xl flex items-center justify-center border-b-4 border-rose-300">
@@ -134,7 +234,7 @@ const ConfessionStory = ({ externalConfig }) => {
             <motion.div variants={itemVariants}>
               <LucideHeart className="text-rose-500 w-12 h-12 mx-auto mb-6 animate-pulse" fill="#FB7185" />
             </motion.div>
-            <motion.h1 variants={itemVariants} className="text-5xl font-serif italic text-rose-900 mb-4">Hello, You.</motion.h1>
+            <motion.h1 variants={itemVariants} className="text-5xl font-serif italic text-rose-900 mb-4">Hello, {recipientName}.</motion.h1>
             <motion.p variants={itemVariants} className="text-rose-400 font-medium tracking-widest uppercase text-xs mb-8 italic leading-loose">
               A digital scrapbook of <br/> everything I haven't said yet.
             </motion.p>
@@ -153,6 +253,7 @@ const ConfessionStory = ({ externalConfig }) => {
 
       <div className={isOpen ? '' : 'hidden'}>
         {/* --- SECTION 2: THE LITTLE THINGS (Dynamic Content) --- */}
+        {sectionStep >= 1 && (
         <section id="likes" className="py-24 px-6 flex flex-col justify-center items-center">
           <motion.div 
             initial="hidden"
@@ -170,7 +271,13 @@ const ConfessionStory = ({ externalConfig }) => {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
                     <motion.div variants={itemVariants} className="relative rounded-[2.5rem] overflow-hidden shadow-2xl h-[400px] border-4 border-white">
-                        <img src={data.imageSection2} className="w-full h-full object-cover" alt="Memory" />
+                        {data.imageSection2 ? (
+                          <img src={data.imageSection2} className="w-full h-full object-cover" alt="Memory" />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-rose-100 to-rose-50 flex items-center justify-center">
+                            <span className="text-rose-300 text-sm italic">Image will appear here</span>
+                          </div>
+                        )}
                     </motion.div>
 
                     <div className="space-y-6">
@@ -194,7 +301,7 @@ const ConfessionStory = ({ externalConfig }) => {
 
                 <motion.button 
                     variants={itemVariants}
-                    onClick={() => scrollToSection('letter')}
+                    onClick={() => { setSectionStep((s) => Math.max(s, 2)); scrollToSection('letter'); }}
                     className="mx-auto flex flex-col items-center gap-2 group text-rose-400 hover:text-rose-600 transition-colors"
                 >
                     <span className="text-[10px] font-black uppercase tracking-[0.3em]">Read my letter</span>
@@ -204,8 +311,10 @@ const ConfessionStory = ({ externalConfig }) => {
             ) : null}
           </motion.div>
         </section>
+        )}
 
         {/* --- SECTION 3: THE LONG CONFESSION (Dynamic Text) --- */}
+        {sectionStep >= 2 && (
         <section id="letter" className="min-h-screen py-24 flex items-center justify-center px-6">
             <motion.div 
               initial="hidden"
@@ -216,21 +325,24 @@ const ConfessionStory = ({ externalConfig }) => {
             >
               <motion.div variants={itemVariants} className="relative z-10 font-serif text-lg md:text-2xl leading-[2] text-rose-950 italic text-center max-w-2xl mx-auto">
                   <LucideQuote className="text-rose-100 w-16 h-16 mx-auto mb-8 opacity-50" />
+                  <p className="mb-6 text-base md:text-lg text-rose-700 normal-case leading-relaxed">{romanceNote}</p>
                   {data.letterBody}
               </motion.div>
               
               <motion.button 
                   variants={itemVariants}
                   whileHover={{ scale: 1.05 }}
-                  onClick={() => scrollToSection('date')}
+                  onClick={() => { setSectionStep((s) => Math.max(s, 3)); scrollToSection('date'); }}
                   className="mt-12 px-10 py-4 border-2 border-rose-200 text-rose-500 rounded-full font-bold text-sm hover:bg-rose-50 transition-all flex items-center gap-3"
               >
                   I HAVE ONE FINAL QUESTION <LucideHeart size={16} fill="currentColor" />
               </motion.button>
             </motion.div>
         </section>
+        )}
 
         {/* --- SECTION 4: THE INVITATION (Dynamic Date/Location) --- */}
+        {sectionStep >= 3 && (
         <section id="date" className="min-h-screen py-32 px-6 flex items-center justify-center relative overflow-hidden">
             <motion.div 
               initial="hidden"
@@ -272,6 +384,7 @@ const ConfessionStory = ({ externalConfig }) => {
                 </motion.div>
             </motion.div>
         </section>
+        )}
       </div>             
       
       <footer className="pb-10 text-center text-rose-300 text-xs tracking-[0.4em] uppercase">
