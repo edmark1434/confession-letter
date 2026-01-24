@@ -19,7 +19,7 @@ export const validateConfirmPassword = (password, confirmPassword) => {
 
 export const getLoginErrors = (formData) => {
   const errors = {};
-  if (!formData.username.trim()) errors.username = "Username is required";
+  if (!formData.email.trim()) errors.email = "Email is required";
   if (!validatePassword(formData.password)) errors.password = "Password must be at least 6 characters";
   return errors;
 };

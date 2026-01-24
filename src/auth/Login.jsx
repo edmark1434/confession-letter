@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle, Heart, ArrowLeft } from 'lucide-react';
 import { getLoginErrors } from '../utils/validation';
 import HeartBg from '../components/HeartBg';
+import { loginUser } from '../repositiories/UserRepositories';
+import { SignInWithGooglePopup } from "../services/Oauth.jsx";
 
 const LoginPage = () => {
-  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return; // Prevent spam
@@ -20,17 +22,30 @@ const LoginPage = () => {
     if (Object.keys(valErrors).length === 0) {
       setIsSubmitting(true);
       try {
-        // Simulate API Login
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        alert("Login successful!");
+        const result = await loginUser(formData);
+        if (!result) throw new Error("Login failed");
+        navigate('/home');
       } catch (err) {
-        setErrors({ server: "Login failed. Try again." });
+        if(err.message.toLowerCase().includes('invalid')){
+          setErrors({ server: "Invalid email or password" });
+        }else{
+          setErrors({ server: err.message });
+        }
       } finally {
         setIsSubmitting(false);
       }
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await SignInWithGooglePopup();
+      if(!result) setErrors({ server: "Google sign-in failed. Try again later." });
+      navigate('/home');
+    } catch (error) {
+      setErrors({ server: error.message }); // show friendly error
+    }
+  };
   return (
     <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-6 min-h-screen bg-[#FFF5F7]">
       {/* Reusable Heart Background */}
@@ -57,16 +72,18 @@ const LoginPage = () => {
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <input
-              type="text" placeholder="Username"
+              type="email" placeholder="Email"
+              required
               disabled={isSubmitting}
               className={`w-full p-4 rounded-xl border-2 outline-none font-bold text-[#FF85A1] bg-white/50 transition-all ${errors.username ? 'border-red-300' : 'border-[#FFD1DC] focus:border-[#FF85A1]'}`}
-              onChange={(e) => setFormData({...formData, username: e.target.value})}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
             />
             {errors.username && <p className="text-[10px] text-red-400 font-bold mt-1 flex items-center gap-1 px-1"><AlertCircle size={12}/> {errors.username}</p>}
           </div>
 
           <div className="relative">
             <input
+              required
               type={showPassword ? "text" : "password"} placeholder="Password"
               disabled={isSubmitting}
               className={`w-full p-4 rounded-xl border-2 outline-none font-bold text-[#FF85A1] bg-white/50 pr-12 transition-all ${errors.password ? 'border-red-300' : 'border-[#FFD1DC] focus:border-[#FF85A1]'}`}
@@ -80,7 +97,7 @@ const LoginPage = () => {
             </button>
             {errors.password && <p className="text-[10px] text-red-400 font-bold mt-1 flex items-center gap-1 px-1"><AlertCircle size={12}/> {errors.password}</p>}
           </div>
-
+            {errors.server && <p className="text-[10px] text-red-400 font-bold mt-1 flex items-center gap-1 px-1"><AlertCircle size={12}/> {errors.server}</p>}
           <button
             type="submit"
             disabled={isSubmitting}
@@ -97,7 +114,7 @@ const LoginPage = () => {
           <div className="flex-1 h-[1px] bg-[#FFD1DC]"></div>
         </div>
 
-        <button
+        <button onClick={handleGoogleLogin}
           disabled={isSubmitting}
           className="w-full py-3 rounded-xl border-2 border-[#FFD1DC] bg-white text-[#FF85A1] font-bold flex items-center justify-center gap-3 text-sm shadow-sm active:scale-95 transition-all disabled:opacity-50"
         >
