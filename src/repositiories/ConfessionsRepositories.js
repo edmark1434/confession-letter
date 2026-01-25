@@ -1,10 +1,10 @@
 import { db } from "../firebase";
 import { addConfession } from "../services/ConfessionService";
-import { collection, getDoc, doc, query, where, getDocs, addDoc } from "firebase/firestore";
+import { collection, getDoc, doc, query, where, getDocs, addDoc, setDoc } from "firebase/firestore";
 const conCollection = collection(db, 'confessions');
 
 export async function addConfessionData(data) {
-    return docRef = await addConfession(conCollection, data);
+    return await addConfession(conCollection, data);
 }
 
 export async function getConfession(id) {
@@ -17,4 +17,14 @@ export async function getConfessionByCode(code) {
     const snap = await getDocs(q);
     if (snap.empty) return null;
     return snap.docs[0].data();
+}
+
+// Persist a confession response by ID, merging with any existing doc
+export async function saveConfessionByCode(code, data) {
+    if (!code) throw new Error("saveConfessionByCode: code is required");
+    const q = query(conCollection, where("code", "==", code));
+    const snap = await getDocs(q);
+    if (snap.empty) throw new Error("saveConfessionByCode: no document found for code " + code);
+    const docId = snap.docs[0].id;
+    await setDoc(doc(conCollection, docId), data, { merge: true });
 }

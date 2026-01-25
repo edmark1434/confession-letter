@@ -8,7 +8,32 @@ import {
   LucideBookOpen, LucideArrowDownCircle, LucideMail, LucideMapPin,
   LucideMusic, LucideVolume2
 } from 'lucide-react';
-
+import {getConfessionByCode, saveConfessionByCode} from '../repositiories/ConfessionsRepositories';
+import { useParams } from 'react-router-dom';
+const defaultData = {
+    title: "For Someone Special",
+    recipientName: "You",
+    songUrl: "",
+    imageSection2: "https://scontent.fceb9-1.fna.fbcdn.net/v/t39.30808-6/474781465_533939329671558_5891960454890417856_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=110&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeEM2_W0yeeVRGhv_y6mBMVthER5qF5Q4auERHmoXlDhqwgORFZAysaEt-62ucIFPr_sFfC3uP2di_0wB94W65G1&_nc_ohc=Nu-BwR0t0zYQ7kNvwGMSjsC&_nc_oc=AdkEObgy8aSuIDRJeIBqRWeMXIk7Q3Bk5fl8BKmJICTDYk5xHHJaWIvKOo07xGGReHI&_nc_zt=23&_nc_ht=scontent.fceb9-1.fna&_nc_gid=IQOcqrQXK_rzNcK0AC-4BQ&oh=00_Afr7ylCXgGOGNZ3ZA3JCpy-I78c3Big8HDIHcMlYPBc39w&oe=697B1BA5",
+    littleThings: [
+      {
+        title: "Your Smile",
+        desc: "The way you light up a room without even trying. It's contagious and makes everything better."
+      },
+      {
+        title: "Your Laugh",
+        desc: "It's the most genuine sound I've ever heard. I could listen to it all day and never get tired."
+      },
+      {
+        title: "Your Kindness",
+        desc: "You have the most beautiful heart. The way you care for others inspires me every single day."
+      }
+    ],
+    letterBody: "From the moment we met, something changed. I find myself thinking about you more than I ever thought possible. Your presence makes ordinary moments feel extraordinary. I love how we can talk for hours about anything and everything. I love your quirks, your dreams, and the way you see the world. You've become my favorite person, and I can't imagine my days without you in them. So here I am, taking a chance, hoping you feel even a fraction of what I feel for you.",
+    invitationDate: "Any day that feels right to you.",
+    invitationLocation: "Casual Date",
+    footerText: "Designed with Love • 2026"
+  };
 // --- CONFIGURATION (Change these to update the website) ---
 const AUDIO_URL = tuladmo;
 const SONG_TITLE = "Tulad Mo";
@@ -61,36 +86,43 @@ const FallingHearts = () => {
 };
 
 const ConfessionStory = ({ externalConfig }) => {
+  const { id } = useParams();
   const [isOpen, setIsOpen] = useState(false);
   const [sectionStep, setSectionStep] = useState(0); // 0=closed,1=likes,2=letter,3=invite
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
   const spotifyRef = useRef(null);
+  const [data, setData] = useState(defaultData);
+  const [showSurpriseModal, setShowSurpriseModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [surpriseMessage, setSurpriseMessage] = useState("");
+  const [isResponded, setIsResponded] = useState(false);
 
-  const data = externalConfig ?? {
-    title: "For Someone Special",
-    recipientName: "You",
-    songUrl: "",
-    imageSection2: "https://scontent.fceb9-1.fna.fbcdn.net/v/t39.30808-6/474781465_533939329671558_5891960454890417856_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=110&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeEM2_W0yeeVRGhv_y6mBMVthER5qF5Q4auERHmoXlDhqwgORFZAysaEt-62ucIFPr_sFfC3uP2di_0wB94W65G1&_nc_ohc=Nu-BwR0t0zYQ7kNvwGMSjsC&_nc_oc=AdkEObgy8aSuIDRJeIBqRWeMXIk7Q3Bk5fl8BKmJICTDYk5xHHJaWIvKOo07xGGReHI&_nc_zt=23&_nc_ht=scontent.fceb9-1.fna&_nc_gid=IQOcqrQXK_rzNcK0AC-4BQ&oh=00_Afr7ylCXgGOGNZ3ZA3JCpy-I78c3Big8HDIHcMlYPBc39w&oe=697B1BA5",
-    littleThings: [
-      {
-        title: "Your Smile",
-        desc: "The way you light up a room without even trying. It's contagious and makes everything better."
-      },
-      {
-        title: "Your Laugh",
-        desc: "It's the most genuine sound I've ever heard. I could listen to it all day and never get tired."
-      },
-      {
-        title: "Your Kindness",
-        desc: "You have the most beautiful heart. The way you care for others inspires me every single day."
+  useEffect(() => {
+    const getContent = async () => {
+      if (!externalConfig) {
+        if (id) {
+          if(sessionStorage.getItem('confession'+id)) {
+            setData(JSON.parse(sessionStorage.getItem('confession'+id)));
+            return;
+          }
+          const result = await getConfessionByCode(id);
+          if (result) {
+            sessionStorage.setItem('confession'+id, JSON.stringify(result));
+            setData(result);
+          } else { 
+            console.warn("No confession found for the provided code.");
+            setData(defaultData);
+          }
+        } else {
+          setData(defaultData);
+        }
+      } else {
+        setData(externalConfig ?? defaultData);
       }
-    ],
-    letterBody: "From the moment we met, something changed. I find myself thinking about you more than I ever thought possible. Your presence makes ordinary moments feel extraordinary. I love how we can talk for hours about anything and everything. I love your quirks, your dreams, and the way you see the world. You've become my favorite person, and I can't imagine my days without you in them. So here I am, taking a chance, hoping you feel even a fraction of what I feel for you.",
-    invitationDate: "Any day that feels right to you.",
-    invitationLocation: "Casual Date",
-    footerText: "Designed with Love • 2026"
-  };
+    }
+    getContent();
+  },[externalConfig, id]);
 
   const recipientName = (externalConfig?.recipientName ?? data.recipientName ?? "You").trim() || "You";
   const romanceNote = externalConfig?.romanceNote ?? "I never believed ordinary days could feel this magical until you walked into them. Every detail here is a page in the story I want to keep writing with you.";
@@ -106,6 +138,7 @@ const ConfessionStory = ({ externalConfig }) => {
     }
   };
 
+  
   const toggleMusic = () => {
     if (isSpotify) {
       // For Spotify, we can't control playback via iframe
@@ -142,6 +175,36 @@ const ConfessionStory = ({ externalConfig }) => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
   };
 
+  const handleYesClick = async() => {
+    setIsLoading(true);
+    if (id) {
+      saveConfessionByCode(id, { answer: "yes" }).then(() => {
+        sessionStorage.removeItem('confession'+id);
+        responseModal("yes");
+      });
+      return;
+    }
+    responseModal("yes");
+  };
+
+  const handleTalkMoreClick = () => {
+    setIsLoading(true);
+    if (id) {
+      saveConfessionByCode(id, { answer: "talkmore" }).then(() => {
+        sessionStorage.removeItem('confession'+id);
+        responseModal("talkmore");
+      });
+      return;
+    }
+    responseModal("talkmore");
+  };
+
+  const responseModal = (response) => {
+      setIsLoading(false);
+      setSurpriseMessage(response);
+      setShowSurpriseModal(true);
+      setIsResponded(true);
+  }
   return (
     <div className="bg-[#FFF5F7] h-screen overflow-y-scroll hide-scrollbar scroll-smooth relative selection:bg-rose-200 selection:text-rose-900">
       
@@ -201,7 +264,7 @@ const ConfessionStory = ({ externalConfig }) => {
               transition={{ duration: 1 }}
               className="text-center mb-12"
             >
-               <h1 className="text-4xl md:text-6xl font-serif text-rose-900 mb-4 italic">{data.title}</h1>
+               <h1 className="text-4xl md:text-6xl font-serif text-rose-900 mb-4 italic">{data.title ?? defaultData.title}</h1>
                <p className="text-rose-400 tracking-[0.3em] uppercase text-[10px] font-bold">A private message is waiting</p>
             </motion.div>
 
@@ -267,7 +330,7 @@ const ConfessionStory = ({ externalConfig }) => {
                 <div className="h-1 w-20 bg-rose-300 mx-auto rounded-full" />
             </motion.div>
 
-            {data.littleThings.length > 0 ? (
+            {(data.littleThings ?? defaultData.littleThings).length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
                     <motion.div variants={itemVariants} className="relative rounded-[2.5rem] overflow-hidden shadow-2xl h-[400px] border-4 border-white">
@@ -281,7 +344,7 @@ const ConfessionStory = ({ externalConfig }) => {
                     </motion.div>
 
                     <div className="space-y-6">
-                        {data.littleThings.map((item, idx) => {
+                        {(data.littleThings ?? defaultData.littleThings).map((item, idx) => {
                           const icons = [<LucideSparkles key="s" />, <LucideHeart key="h" />, <LucideStars key="st" />];
                           const icon = icons[idx % 3];
                           return (
@@ -326,7 +389,7 @@ const ConfessionStory = ({ externalConfig }) => {
               <motion.div variants={itemVariants} className="relative z-10 font-serif text-lg md:text-2xl leading-[2] text-rose-950 italic text-center max-w-2xl mx-auto">
                   <LucideQuote className="text-rose-100 w-16 h-16 mx-auto mb-8 opacity-50" />
                   <p className="mb-6 text-base md:text-lg text-rose-700 normal-case leading-relaxed">{romanceNote}</p>
-                  {data.letterBody}
+                  {data.letterBody ?? defaultData.letterBody}
               </motion.div>
               
               <motion.button 
@@ -357,26 +420,64 @@ const ConfessionStory = ({ externalConfig }) => {
                   <motion.div variants={itemVariants} className="flex flex-col gap-4 mb-10">
                       <div className="flex items-center gap-4 bg-white px-8 py-5 rounded-2xl shadow-sm border border-rose-100">
                           <LucideCalendar className="text-rose-500" size={24} />
-                          <span className="font-bold text-black text-lg">{data.invitationDate}</span>
+                          <span className="font-bold text-black text-lg">{data.invitationDate || defaultData.invitationDate}</span>
                       </div>
                       <div className="flex items-center gap-4 bg-white px-8 py-5 rounded-2xl shadow-sm border border-rose-100">
                           <LucideMapPin className="text-rose-500" size={24} />
-                          <span className="font-bold text-black text-lg">{data.invitationLocation}</span>
+                          <span className="font-bold text-black text-lg">{data.invitationLocation || defaultData.invitationLocation}</span>
                       </div>
                   </motion.div>
 
-                  <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start items-center">
-                      <motion.button 
-                        whileHover={{ scale: 1.1, backgroundColor: '#e11d48' }}
-                        whileTap={{ scale: 0.9 }}
-                        className="px-16 py-6 bg-rose-500 text-white rounded-full font-bold shadow-xl text-xl"
+                <AnimatePresence mode="wait">
+                  {!isResponded && !data.answer ? (
+                      <motion.div 
+                        key="buttons"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                        className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start items-center"
                       >
-                        YES! ❤️
-                      </motion.button>
-                      <button className="text-rose-400 font-semibold italic underline underline-offset-4">
-                        Let's talk more...
-                      </button>
-                  </motion.div>
+                        <motion.button 
+                          whileHover={{ scale: 1.1, backgroundColor: '#e11d48' }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={handleYesClick}
+                          disabled={isLoading}
+                          className="px-16 py-6 bg-rose-500 text-white rounded-full font-bold shadow-xl text-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
+                        >
+                          {isLoading ? (
+                            <>
+                              <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              <span>Processing...</span>
+                            </>
+                          ) : (
+                            "YES! ❤️"
+                          )}
+                        </motion.button>
+                        <button 
+                          onClick={handleTalkMoreClick}
+                          disabled={isLoading}
+                          className="text-rose-400 font-semibold italic underline underline-offset-4 hover:text-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isLoading ? "Processing..." : "Let's talk more..."}
+                        </button>
+                    </motion.div>
+                  ) : (
+                      <motion.p 
+                        key="responded"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                        className="text-rose-600 italic font-medium text-lg"
+                      >
+                        ✓ You've already responded. Thank you for your answer! 💖
+                      </motion.p> 
+                  )}
+                </AnimatePresence>
                 </div>
 
                 <motion.div variants={itemVariants} className="relative w-full max-w-sm flex justify-center">
@@ -387,8 +488,125 @@ const ConfessionStory = ({ externalConfig }) => {
         )}
       </div>             
       
+      {/* Surprise Modal */}
+      <AnimatePresence>
+        {showSurpriseModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowSurpriseModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="bg-gradient-to-br from-rose-50 to-white p-12 rounded-[3rem] shadow-2xl max-w-2xl w-full border-4 border-rose-200 relative overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Decorative hearts */}
+              <div className="absolute top-4 right-4 text-rose-300 opacity-50">
+                <LucideHeart size={40} fill="currentColor" />
+              </div>
+              <div className="absolute bottom-4 left-4 text-rose-300 opacity-50">
+                <LucideHeart size={30} fill="currentColor" />
+              </div>
+              <div className="absolute top-1/2 left-4 text-rose-200 opacity-30">
+                <LucideSparkles size={25} />
+              </div>
+              <div className="absolute top-1/4 right-8 text-rose-200 opacity-30">
+                <LucideStars size={25} />
+              </div>
+
+              <div className="relative z-10 text-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring" }}
+                  className="mb-6"
+                >
+                  <LucideHeart className="w-20 h-20 mx-auto text-rose-500 animate-pulse" fill="#FB7185" />
+                </motion.div>
+
+                {surpriseMessage === "yes" ? (
+                  <>
+                    <motion.h2
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="text-5xl font-serif text-rose-900 mb-6 italic"
+                    >
+                      You just made my heart skip! 💕
+                    </motion.h2>
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                      className="text-lg text-rose-700 leading-relaxed mb-4"
+                    >
+                      I can't believe this is happening! Your "yes" means the world to me. 
+                      I promise to make every moment together unforgettable. ✨
+                    </motion.p>
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.7 }}
+                      className="text-base text-rose-600 italic mb-8"
+                    >
+                      Get ready for the most romantic adventure of our lives! 🌹
+                    </motion.p>
+                  </>
+                ) : (
+                  <>
+                    <motion.h2
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="text-5xl font-serif text-rose-900 mb-6 italic"
+                    >
+                      I'd love to talk more! 🌙
+                    </motion.h2>
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                      className="text-lg text-rose-700 leading-relaxed mb-4"
+                    >
+                      Every conversation with you feels like magic. I'm always here, 
+                      ready to listen to your thoughts, dreams, and everything in between. 💫
+                    </motion.p>
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.7 }}
+                      className="text-base text-rose-600 italic mb-8"
+                    >
+                      Let's create beautiful memories together, one conversation at a time. 🎀
+                    </motion.p>
+                  </>
+                )}
+
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.9 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowSurpriseModal(false)}
+                  className="px-10 py-4 bg-rose-500 text-white rounded-full font-bold shadow-lg hover:bg-rose-600 transition-all"
+                >
+                  Close 💖
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
       <footer className="pb-10 text-center text-rose-300 text-xs tracking-[0.4em] uppercase">
-        {data.footerText}
+        {data.footerText ?? defaultData.footerText}
       </footer>
     </div>
   );

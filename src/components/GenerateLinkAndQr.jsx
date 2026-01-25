@@ -13,7 +13,7 @@ const GenerateLinkAndQr = ({ isOpen, onClose}) => {
   // Generate shareable link when modal opens
   useEffect(() => {
     const generateLink = async () => {
-      const code = await generateWebsiteId();
+      const code = sessionStorage.getItem("latestConfessionCode");
       const baseUrl = window.location.origin;
       return `${baseUrl}/confession/${code}`;
     };

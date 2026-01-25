@@ -54,8 +54,8 @@ const ConfessionForm = () => {
   };
 
   const SaveAndGenerateLink = async () => {
-    setIsSubmitting(true);
     if (validateForm()) {
+      setIsSubmitting(true);
       addConfessionData(config).then((id) => {
         console.log("Confession saved with ID:", id);
         setIsSubmitting(false);
