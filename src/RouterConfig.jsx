@@ -17,13 +17,13 @@ const RouterConfig = () => {
 
   return (
     <Routes>
+      <Route path="/confession/:id" element={<ConfessionStory />} />
       <Route path="/" element={<AuthMiddleware />}>
         <Route path="" element={<App />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="signup" element={<SignupPage />} />
         <Route path="home" element={<HomePage />} />
         <Route path="confession" element={<ConfessionSite />} />
-        <Route path="confession/:id" element={<ConfessionSite />} />
         <Route path="confession-preview" element={<ConfessionStory />} />
         <Route path="valentines" element={<ValentinesSpecial />} />
         <Route path="confession-form" element={<ConfessionForm />} />
