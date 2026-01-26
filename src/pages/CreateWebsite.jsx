@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { LucideHeart, LucideSend, LucideArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom'; // Assuming you use react-router
 
-const HomePage = () => {
+const CreateWebsite = () => {
   const navigate = useNavigate();
 
   const cards = [
@@ -86,4 +86,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default CreateWebsite;
