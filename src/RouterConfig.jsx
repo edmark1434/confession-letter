@@ -8,16 +8,17 @@ import { AuthMiddleware } from './middleware/AuthMiddleware.jsx';
 import ConfessionSite from './pages/ConfessionSite.jsx';
 import LoginPage from './auth/Login.jsx';
 import SignupPage from './auth/Signup.jsx';
-import HomePage from './pages/home.jsx';
-import ValentinesSpecial from './pages/ValentinesSpecial.jsx';
-import ConfessionForm from './pages/ConfessionForm.jsx';
-import ConfessionStory from './pages/ConfessionSitePreview.jsx';
+import HomePage from './pages/HomePage.jsx';
+import ValentinesSpecial from './pages/template/ValentinesSpecial.jsx';
+import Create from './pages/Create.jsx';
+import ConfessionStory from './pages/template/ConfessionSitePreview.jsx';
 const RouterConfig = () => {
   const location = useLocation();
 
   return (
     <Routes>
       <Route path="/confession/:id" element={<ConfessionStory />} />
+      <Route path="/valentine/:id" element={<ValentinesSpecial />} />
       <Route path="/" element={<AuthMiddleware />}>
         <Route path="" element={<App />} />
         <Route path="login" element={<LoginPage />} />
@@ -26,7 +27,7 @@ const RouterConfig = () => {
         <Route path="confession" element={<ConfessionSite />} />
         <Route path="confession-preview" element={<ConfessionStory />} />
         <Route path="valentines" element={<ValentinesSpecial />} />
-        <Route path="confession-form" element={<ConfessionForm />} />
+        <Route path="create" element={<Create />} />
       </Route>
     </Routes>
   );

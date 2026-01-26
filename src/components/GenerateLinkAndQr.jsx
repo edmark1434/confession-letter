@@ -4,7 +4,7 @@ import { LucideX, LucideCopy, LucideCheck, LucideDownload, LucideShare2 } from '
 import QRCodeStyling from 'qr-code-styling';
 import love from '../../public/love.png';
 import {generateWebsiteId} from '../services/WebsiteIdGenerator.jsx';
-const GenerateLinkAndQr = ({ isOpen, onClose}) => {
+const GenerateLinkAndQr = ({ isOpen, onClose,type="confession"}) => {
   const [copied, setCopied] = useState(false);
   const [shareableLink, setShareableLink] = useState('');
   const qrCodeRef = useRef(null);
@@ -12,14 +12,15 @@ const GenerateLinkAndQr = ({ isOpen, onClose}) => {
 
   // Generate shareable link when modal opens
   useEffect(() => {
-    const generateLink = async () => {
-      const code = sessionStorage.getItem("latestConfessionCode");
+    const generateLink =  () => {
+      const code = sessionStorage.getItem(`latest${type}Code`);
       const baseUrl = window.location.origin;
-      return `${baseUrl}/confession/${code}`;
+      return `${baseUrl}/${type}/${code}`;
     };
 
     if (isOpen && !shareableLink) {
-      generateLink().then(link => setShareableLink(link));
+      const link = generateLink();
+      setShareableLink(link);
     }
   }, [isOpen]);
   

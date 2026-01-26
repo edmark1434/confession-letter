@@ -1,15 +1,15 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import FlowerBouquet from '../components/FlowerBouquets';
-import tuladmo from '../assets/tuladmo.mp3';
+import FlowerBouquet from '../../components/FlowerBouquets';
+import tuladmo from '../../assets/tuladmo.mp3';
 import { 
   LucideHeart, LucideSparkles, LucideCalendar, 
   LucideStars, LucideQuote, LucideCoffee, 
   LucideBookOpen, LucideArrowDownCircle, LucideMail, LucideMapPin,
-  LucideMusic, LucideVolume2
+  LucideMusic, LucideVolume2, LucideArrowLeft,LucideUtensils
 } from 'lucide-react';
-import {getConfessionByCode, saveConfessionByCode} from '../repositiories/ConfessionsRepositories';
-import { useParams } from 'react-router-dom';
+import {getConfessionByCode, saveConfessionByCode} from '../../repositiories/ConfessionsRepositories';
+import { useNavigate, useParams } from 'react-router-dom';
 const defaultData = {
     title: "For Someone Special",
     recipientName: "You",
@@ -87,6 +87,7 @@ const FallingHearts = () => {
 
 const ConfessionStory = ({ externalConfig }) => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [sectionStep, setSectionStep] = useState(0); // 0=closed,1=likes,2=letter,3=invite
   const [isPlaying, setIsPlaying] = useState(false);
@@ -175,6 +176,15 @@ const ConfessionStory = ({ externalConfig }) => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
   };
 
+  const resetWebsite = () => {
+    setIsOpen(false);
+    setSectionStep(0);
+    setIsPlaying(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  }
   const handleYesClick = async() => {
     setIsLoading(true);
     if (id) {
@@ -219,6 +229,16 @@ const ConfessionStory = ({ externalConfig }) => {
         }
         .clip-path-envelope { clip-path: polygon(0 0, 50% 50%, 100% 0); }
       `}</style>
+
+      <div hidden={!isOpen} className="sticky top-0 z-30 flex justify-start px-6 pt-4">
+        <button
+          onClick={() => resetWebsite()}
+          className="inline-flex items-center gap-2 rounded-full bg-white/80 border border-rose-100 px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm backdrop-blur hover:bg-white"
+        >
+          <LucideArrowLeft size={16} />
+          Close Letter
+        </button>
+      </div>
 
       <FallingHearts />
       
@@ -423,7 +443,7 @@ const ConfessionStory = ({ externalConfig }) => {
                           <span className="font-bold text-black text-lg">{data.invitationDate || defaultData.invitationDate}</span>
                       </div>
                       <div className="flex items-center gap-4 bg-white px-8 py-5 rounded-2xl shadow-sm border border-rose-100">
-                          <LucideMapPin className="text-rose-500" size={24} />
+                          <LucideUtensils className="text-rose-500" size={24} />
                           <span className="font-bold text-black text-lg">{data.invitationLocation || defaultData.invitationLocation}</span>
                       </div>
                   </motion.div>

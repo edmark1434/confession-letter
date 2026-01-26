@@ -9,7 +9,7 @@ html, body, #root {
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow: auto;
   font-family: 'Quicksand', sans-serif; /* Applied Quicksand */
   background-color: #FFF5F7; /* */
 }

@@ -7,7 +7,7 @@ export function AuthMiddleware() {
   const location = useLocation();
   const [loading, setLoading] = useState(true);
 
-  const publicRoutes = ["/login", "/signup"];
+  const publicRoutes = ["/login", "/signup",'/'];
 
   useEffect(() => {
     const auth = getAuth();

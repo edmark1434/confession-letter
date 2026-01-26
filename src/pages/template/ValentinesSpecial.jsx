@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import FlowerBouquet from '../components/FlowerBouquets';
-import tuladmo from '../assets/tuladmo.mp3';
+import FlowerBouquet from '../../components/FlowerBouquets';
+import tuladmo from '../../assets/tuladmo.mp3';
 import { 
   LucideHeart, LucideSparkles, LucideCalendar, 
   LucideUtensils, LucideMapPin,
   LucideArrowRight, LucideInfinity, LucideChevronLeft, LucideChevronRight,
   LucideQuote, LucideArrowDownCircle, LucideMusic, LucideVolume2, LucideLock, LucideUnlock
 } from 'lucide-react';
-
+import { valentineConfig } from '../../datasets/valentine-special.js';
+import { getValentineByCode, saveValentineByCode } from '../../repositiories/ValentineRepositories';
+import { useParams } from 'react-router-dom';
 // --- CONFIGURATION ---
-const CORRECT_PASSCODE = "2023"; 
-const ANNIVERSARY_DATE = "2023-05-20"; 
-const SONG_TITLE = "Tulad Mo";
-const AUDIO_URL = tuladmo;
+
 
 const ValentineOverlay = () => {
   const [elements, setElements] = useState([]);
@@ -46,26 +45,62 @@ const fadeInUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
 };
 
-const ValentinesSpecial = () => {
+const ValentinesSpecial = ({externalConfig}) => {
+  const { id } = useParams();
   const [isStarted, setIsStarted] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [passcode, setPasscode] = useState("");
   const [error, setError] = useState(false);
   const [currentPhoto, setCurrentPhoto] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [data, setData] = useState(valentineConfig);
+  const [isResponded, setIsResponded] = useState(false);
+  const [currentSection, setCurrentSection] = useState("start"); // Track current section
+  const [autoScroll, setAutoScroll] = useState(true); // Enable auto-scroll
   const audioRef = useRef(null);
+  const config = externalConfig || data;
 
-  const memories = [
-    { img: "https://images.unsplash.com/photo-1516589174184-c68d8e5f247d?q=80&w=800", note: "The day my world changed." },
-    { img: "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?q=80&w=800", note: "Coffee, laughs, and you." },
-    { img: "https://images.unsplash.com/photo-1529634597503-139d3726fed5?q=80&w=800", note: "Forever chasing sunsets together." }
-  ];
+  // Fetch data from Firebase if id is provided
+  useEffect(() => {
+    const getData = async () => {
+      if (!externalConfig) {
+        if (id) {
+          // Check sessionStorage first
+          if (sessionStorage.getItem('valentine' + id)) {
+            setData(JSON.parse(sessionStorage.getItem('valentine' + id)));
+            return;
+          }
+          // Fetch from Firebase
+          const result = await getValentineByCode(id);
+          if (result) {
+            sessionStorage.setItem('valentine' + id, JSON.stringify(result));
+            setData(result);
+            if (result.answer) {
+              setIsResponded(true);
+            }
+          } else {
+            console.warn("No valentine found for the provided code.");
+            setData(valentineConfig);
+          }
+        } else {
+          setData(valentineConfig);
+        }
+      } else {
+        setData(externalConfig ?? valentineConfig);
+      }
+    };
+    getData();
+  }, [externalConfig, id]);
 
   const handleUnlock = (e) => {
     e.preventDefault();
-    if (passcode === CORRECT_PASSCODE) {
+    if (passcode === config.passcode) {
       setIsUnlocked(true);
       setError(false);
+      setCurrentSection("hero"); // Jump to hero section
+      setTimeout(() => {
+        document.getElementById("hero")?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
       if(!isPlaying) toggleMusic();
     } else {
       setError(true);
@@ -81,7 +116,7 @@ const ValentinesSpecial = () => {
   };
 
   const calculateDays = () => {
-    const start = new Date(ANNIVERSARY_DATE);
+    const start = new Date(config.anniversaryDate);
     const now = new Date();
     return Math.floor((now - start) / (1000 * 60 * 60 * 24));
   };
@@ -90,16 +125,35 @@ const ValentinesSpecial = () => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleLockAgain = () => {
+    setIsUnlocked(false);
+    setIsStarted(false);
+    setPasscode("");
+    setIsPlaying(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  };
+
   return (
     <div className="bg-[#FFF0F3] h-screen overflow-y-scroll hide-scrollbar scroll-smooth relative selection:bg-rose-500 selection:text-white">
       <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; } .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
       
       <ValentineOverlay />
-      <audio ref={audioRef} src={AUDIO_URL} loop />
+      <audio ref={audioRef} src={config.audioUrl || valentineConfig.audioUrl} loop />
 
       {/* --- MUSIC PLAYER --- */}
       {isUnlocked && (
-        <div className="fixed top-6 right-6 z-50">
+        <div className="fixed top-6 right-6 z-50 flex gap-3">
+          <motion.button 
+            whileTap={{ scale: 0.9 }} 
+            onClick={handleLockAgain}
+            className="bg-white/80 backdrop-blur-md p-4 rounded-full shadow-lg text-rose-500 flex items-center gap-3 border border-rose-100 hover:bg-white transition-colors"
+            title="Lock and go back"
+          >
+            <LucideLock size={20} />
+          </motion.button>
           <motion.button whileTap={{ scale: 0.9 }} onClick={toggleMusic} className="bg-white/80 backdrop-blur-md p-4 rounded-full shadow-lg text-rose-500 flex items-center gap-3 border border-rose-100">
             {isPlaying ? <LucideVolume2 size={20} className="animate-pulse" /> : <LucideMusic size={20} />}
           </motion.button>
@@ -175,14 +229,14 @@ const ValentinesSpecial = () => {
             <h2 className="text-3xl font-serif text-rose-900 mb-12 text-center underline decoration-rose-200 underline-offset-8">Captured Moments</h2>
             <div className="relative w-full max-w-sm md:max-w-lg">
               <AnimatePresence mode="wait">
-                <motion.div key={currentPhoto} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="bg-white p-4 pb-12 shadow-2xl rounded-sm">
-                  <img src={memories[currentPhoto].img} className="w-full h-64 md:h-80 object-cover" alt="Memory" />
-                  <p className="mt-6 text-center font-serif text-xl text-rose-800 italic">{memories[currentPhoto].note}</p>
+                <motion.div key={currentPhoto} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="bg-white p-3 md:p-4 pb-8 md:pb-12 shadow-2xl rounded-sm">
+                  <img src={config.memories[currentPhoto].img} className="w-full aspect-square sm:aspect-auto sm:h-64 md:h-80 object-cover" alt="Memory" />
+                  <p className="mt-4 md:mt-6 px-2 text-center font-serif text-sm sm:text-base md:text-xl text-rose-800 italic leading-relaxed break-words">{config.memories[currentPhoto].note}</p>
                 </motion.div>
               </AnimatePresence>
               <div className="flex justify-center gap-8 mt-10">
-                <button onClick={() => setCurrentPhoto((prev) => (prev - 1 + memories.length) % memories.length)} className="p-3 bg-white rounded-full shadow-md text-rose-500 hover:scale-110 transition-transform"><LucideChevronLeft /></button>
-                <button onClick={() => setCurrentPhoto((prev) => (prev + 1) % memories.length)} className="p-3 bg-white rounded-full shadow-md text-rose-500 hover:scale-110 transition-transform"><LucideChevronRight /></button>
+                <button onClick={() => setCurrentPhoto((prev) => (prev - 1 + config.memories.length) % config.memories.length)} className="p-3 bg-white rounded-full shadow-md text-rose-500 hover:scale-110 transition-transform"><LucideChevronLeft /></button>
+                <button onClick={() => setCurrentPhoto((prev) => (prev + 1) % config.memories.length)} className="p-3 bg-white rounded-full shadow-md text-rose-500 hover:scale-110 transition-transform"><LucideChevronRight /></button>
               </div>
             </div>
             <button onClick={() => scrollToSection('letter')} className="mt-16 text-rose-400 font-bold text-xs flex flex-col items-center gap-2 tracking-[0.2em]">
@@ -199,8 +253,7 @@ const ValentinesSpecial = () => {
               <LucideQuote className="absolute -top-4 left-8 text-rose-100" size={60} />
               <div className="font-serif text-rose-900 text-lg md:text-xl leading-relaxed italic space-y-6">
                 <p>My Dearest,</p>
-                <p>Entering that code reminded me of how long we've been building this beautiful world together. Every day since has been an adventure I wouldn't trade for anything.</p>
-                <p>You make every ordinary moment feel extraordinary. Happy Valentine's Day, my love.</p>
+                <p>{config.letterBody}</p>
                 <p className="text-right mt-10">— Yours Forever</p>
               </div>
               <button onClick={() => scrollToSection('invitation')} className="w-full mt-12 py-4 border-2 border-rose-100 text-rose-500 font-bold rounded-full text-xs uppercase tracking-widest hover:bg-rose-50 transition-colors">
@@ -222,22 +275,34 @@ const ValentinesSpecial = () => {
                 <div className="space-y-4 mb-10 mx-auto lg:mx-0 max-w-sm">
                   <div className="flex items-center gap-4 bg-rose-50 p-4 rounded-2xl shadow-sm">
                     <LucideUtensils className="text-rose-500 shrink-0" /> 
-                    <span className="font-bold text-rose-900 text-sm md:text-lg">Romantic Dinner for Two</span>
+                    <span className="font-bold text-rose-900 text-sm md:text-lg">{config.invitationType || 'Romantic Dinner'}</span>
                   </div>
                   <div className="flex items-center gap-4 bg-rose-50 p-4 rounded-2xl shadow-sm">
                     <LucideCalendar className="text-rose-500 shrink-0" /> 
-                    <span className="font-bold text-rose-900 text-sm md:text-lg">Feb 14, 2026 • Sunset</span>
+                    <span className="font-bold text-rose-900 text-sm md:text-lg">{config.invitationDate || 'Feb 14, 2026'}</span>
                   </div>
                   <div className="flex items-center gap-4 bg-rose-50 p-4 rounded-2xl shadow-sm">
                     <LucideMapPin className="text-rose-500 shrink-0" /> 
-                    <span className="font-bold text-rose-900 text-sm md:text-lg">Our Special Spot</span>
+                    <span className="font-bold text-rose-900 text-sm md:text-lg">{config.invitationLocation || 'Favorite Restaurant'}</span>
                   </div>
                 </div>
                 <motion.button 
                   whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                  className="w-full lg:w-max bg-rose-500 text-white px-16 py-6 rounded-full font-bold text-xl shadow-xl shadow-rose-200 hover:bg-rose-600 transition-colors mx-auto lg:mx-0"
+                  onClick={async () => {
+                    if (id && !isResponded) {
+                      await saveValentineByCode(id, { answer: "yes" });
+                      sessionStorage.removeItem('valentine' + id);
+                      setIsResponded(true);
+                    }
+                  }}
+                  disabled={isResponded}
+                  className={`w-full lg:w-max px-16 py-6 rounded-full font-bold text-xl shadow-xl shadow-rose-200 transition-colors mx-auto lg:mx-0 ${
+                    isResponded 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-rose-500 text-white hover:bg-rose-600'
+                  }`}
                 >
-                  YES! ❤️
+                  {isResponded ? "Already Responded ✓" : "YES! ❤️"}
                 </motion.button>
               </div>
 
