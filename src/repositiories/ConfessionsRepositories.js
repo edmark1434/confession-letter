@@ -1,9 +1,13 @@
 import { db } from "../firebase";
 import { addConfession } from "../services/ConfessionService";
 import { collection, getDoc, doc, query, where, getDocs, addDoc, setDoc } from "firebase/firestore";
+import { sendNotification } from "./NotificationRepositories";
+import { getAuth } from "firebase/auth";
 const conCollection = collection(db, 'confessions');
 
 export async function addConfessionData(data) {
+    const userId = getAuth().currentUser.uid;
+    data.userId = userId;
     return await addConfession(conCollection, data);
 }
 
@@ -26,7 +30,10 @@ export async function saveConfessionByCode(code, data) {
     const snap = await getDocs(q);
     if (snap.empty) throw new Error("saveConfessionByCode: no document found for code " + code);
     const docId = snap.docs[0].id;
+    const userId = snap.docs[0].data().userId;
     await setDoc(doc(conCollection, docId), data, { merge: true });
+    const message = `Your respondent has responded website ${code}: ${data.answer == 'yes' ? data.answer+" to your invitation to take her on a date!" : data.answer + " and she appreciate your effort"} `;
+    await sendNotification(docId,userId, message, "confession");
 }
 
 export async function getConfessionByUser(userId) {

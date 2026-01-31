@@ -11,7 +11,6 @@ export function AuthMiddleware() {
 
   useEffect(() => {
     const auth = getAuth();
-    
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user && !publicRoutes.includes(location.pathname)) {
         navigate("/login", { replace: true });

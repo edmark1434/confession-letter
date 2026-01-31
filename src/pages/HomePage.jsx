@@ -11,6 +11,12 @@ import { useNavigate } from 'react-router-dom';
 import {getValentineByUser} from '../repositiories/ValentineRepositories';
 import {getConfessionByUser} from '../repositiories/ConfessionsRepositories';
 import { getAuth } from 'firebase/auth';
+import { realtimeDB } from '../firebase';
+import { ref, update, get } from 'firebase/database';
+import GenerateLinkAndQr from '../components/GenerateLinkAndQr.jsx';
+import {sendMessage as sendMessageApi, getMessages} from '../repositiories/MessageRepositories.js';
+import { getNotifications, sendHeartNotification } from '../repositiories/NotificationRepositories.js';
+import { timeAgo } from '../services/CommonFunctionService.jsx';
 
 // --- STYLING: HIDE SCROLLBAR ---
 const scrollbarHideStyles = `
@@ -37,26 +43,62 @@ const HomePage = () => {
   const [quoteIndex, setQuoteIndex] = useState(0);
   const [expIndex, setExpIndex] = useState(0);
   const [hasNotification, setHasNotification] = useState(true);
-  const [copiedId, setCopiedId] = useState(null);
   const [myWebsites, setMyWebsites] = useState([]);
+  const [isSharedLink, setIsSharedLink] = useState(false);
+  const [selectedSite, setSelectedSite] = useState(null);
+  const [message, setMessage] = useState('');
+  const [messageList, setMessagesList] = useState([]);
+  const [processing, setProcessing] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  
   useEffect(() => {
     const fetchData = async() =>{
       const [res1,res2] = await Promise.all([
         getConfessionByUser(userId),
         getValentineByUser(userId)
-        
       ]);
-      console.log(res1);
-      const combined = [...res1, ...res2] 
+      const combined = [...res1, ...res2]
       setMyWebsites(combined);
     }
     fetchData();
   },[userId]);
-  // Website data with Response Status
-  // const [myWebsites] = useState([
-  //   { id: 'conf-1', type: 'Confession', title: 'For Sarah', status: 'responded', date: 'Jan 20' },
-  //   { id: 'date-1', type: 'Invitation', title: 'Sunday Coffee', status: 'pending', date: 'Jan 24' },
-  // ]);
+
+  useEffect(() => {
+    const unsubscribe = getMessages(setMessagesList);
+    return () => unsubscribe();
+  }, []);
+  useEffect(() => {
+    const unsubscribe = getNotifications(userId, (fetchedNotifications) => {
+      setNotifications(fetchedNotifications);
+      setHasNotification(fetchedNotifications.length > 0);
+    });
+    return () => unsubscribe();
+  }, [userId]);
+
+  const handleSendMessage = () => {
+    if(message.trim() === '') return;
+    setProcessing(true);
+    sendMessageApi(message.trim()).then(() => {
+      setProcessing(false);
+    });
+
+    setMessage('');
+  }
+
+  const handleHeartMessage = async (messageData) => {
+    if (!messageData) return;
+    try {
+      const { toggleHeartMessage } = await import('../repositiories/MessageRepositories.js');
+      const currentUserName = getAuth().currentUser.displayName || 'Someone';
+      
+      await toggleHeartMessage(messageData.id, messageData, userId, currentUserName);
+    } catch (error) {
+      console.error('Error toggling heart:', error);
+    }
+  }
+
+  
 
   // Quote Autoplay
   useEffect(() => {
@@ -66,30 +108,10 @@ const HomePage = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const nextExp = () => setExpIndex((prev) => (prev + 1) % COMMUNITY_EXPERIENCES.length);
-  const prevExp = () => setExpIndex((prev) => (prev - 1 + COMMUNITY_EXPERIENCES.length) % COMMUNITY_EXPERIENCES.length);
+  const nextExp = () => setExpIndex((prev) => (prev + 1) % messageList.length);
+  const prevExp = () => setExpIndex((prev) => (prev - 1 + messageList.length) % messageList.length);
 
-  const shareWebsite = (site) => {
-    const url = `${window.location.origin}/${site.type}/${site.code}`;
-    const reset = () => setTimeout(() => setCopiedId(null), 1800);
-
-    if (navigator.share) {
-      navigator.share({ title: site.title, url }).catch(() => {});
-      return;
-    }
-
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url).then(() => {
-        setCopiedId(site.id);
-        reset();
-      }).catch(() => {
-        alert(`Share this link: ${url}`);
-      });
-      return;
-    }
-
-    alert(`Share this link: ${url}`);
-  };
+  
 
   return (
     <div className="min-h-screen bg-[#FFF9FA] text-rose-950 font-serif no-scrollbar overflow-x-hidden selection:bg-rose-100">
@@ -111,10 +133,45 @@ const HomePage = () => {
         </div>
         
         <div className="flex items-center gap-4">
-          <div className="relative cursor-pointer p-2 hover:bg-rose-50 rounded-full transition-colors">
+          <div 
+            onClick={() => setShowNotifications(!showNotifications)}
+            className="relative cursor-pointer p-2 hover:bg-rose-50 rounded-full transition-colors"
+          >
             <LucideBell size={22} className="text-rose-400" />
             {hasNotification && (
               <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-rose-600 border-2 border-white rounded-full" />
+            )}
+            
+            {/* Notification Dropdown */}
+            {showNotifications && (
+              <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-rose-100 overflow-hidden z-50">
+                <div className="p-4 border-b border-rose-100 bg-rose-50">
+                  <h3 className="font-bold text-rose-900">Notifications</h3>
+                  <p className="text-xs text-rose-400">{notifications.length} new responses</p>
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="p-6 text-center text-rose-300 text-sm">
+                      No new notifications
+                    </div>
+                  ) : (
+                    notifications.map((notif) => (
+                      <div key={notif.id} className="p-4 border-b border-rose-50 hover:bg-rose-50 transition-colors">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                            <LucideCheckCircle2 size={20} className="text-emerald-500" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-sm text-rose-900">{notif.title}</p>
+                            <p className="text-xs text-rose-600 mt-1">{notif.message}</p>
+                            <p className="text-[10px] text-rose-300 mt-2 uppercase font-black tracking-wider">{timeAgo(notif.timestamp)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
             )}
           </div>
           <button 
@@ -125,7 +182,7 @@ const HomePage = () => {
           </button>
         </div>
       </nav>
-
+      
       {/* --- HERO QUOTE --- */}
       <header className="relative pt-16 pb-12 flex flex-col items-center text-center px-6">
         <AnimatePresence mode="wait">
@@ -171,18 +228,23 @@ const HomePage = () => {
                 className="min-h-[140px]"
               >
                 <p className="text-xl md:text-2xl text-rose-800 italic leading-relaxed mb-6">
-                  "{COMMUNITY_EXPERIENCES[expIndex].content}"
+                  "{messageList[expIndex]?.message}"
                 </p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center text-rose-500 font-bold text-xs">
-                      {COMMUNITY_EXPERIENCES[expIndex].user[0]}
+                      {messageList[expIndex]?.senderName[0]}
                     </div>
-                    <span className="font-bold text-sm text-rose-900">{COMMUNITY_EXPERIENCES[expIndex].user}</span>
+                    <span className="font-bold text-sm text-rose-900">{messageList[expIndex]?.senderName}</span>
                   </div>
                   <div className="flex items-center gap-4 text-rose-300">
-                     <span className="flex items-center gap-1 text-[10px] font-black"><LucideHeart size={14} fill="currentColor"/> {COMMUNITY_EXPERIENCES[expIndex].likes}</span>
-                     <span className="text-[10px] font-black uppercase tracking-tighter">{COMMUNITY_EXPERIENCES[expIndex].time}</span>
+                     <button 
+                       onClick={() => handleHeartMessage(messageList[expIndex])}
+                       className="flex items-center gap-1 text-[10px] font-black hover:text-rose-500 transition-colors cursor-pointer"
+                     >
+                       <LucideHeart size={14} fill="currentColor"/> {messageList[expIndex]?.heart || 0}
+                     </button>
+                     <span className="text-[10px] font-black uppercase tracking-tighter">{timeAgo(messageList[expIndex]?.timestamp)}</span>
                   </div>
                 </div>
               </motion.div>
@@ -196,10 +258,12 @@ const HomePage = () => {
             </h2>
             <div className="relative">
               <textarea 
+                value={message}
+                onChange={(e) => setMessage(e.target.value)} 
                 placeholder="How did they react?..."
                 className="w-full bg-rose-50/30 border-2 border-rose-100/50 rounded-3xl p-5 text-sm focus:ring-4 focus:ring-rose-100 outline-none transition-all h-32 italic"
               />
-              <button className="absolute bottom-4 right-4 p-3 bg-rose-500 text-white rounded-2xl shadow-xl hover:bg-rose-600 transition-all">
+              <button disabled={processing} onClick={() => handleSendMessage()} className="absolute bottom-4 right-4 p-3 bg-rose-500 text-white rounded-2xl shadow-xl hover:bg-rose-600 transition-all">
                 <LucideSend size={20} />
               </button>
             </div>
@@ -219,32 +283,35 @@ const HomePage = () => {
               <div className="space-y-4">
                 {myWebsites.map((site,index) => {
                   const baseUrl = window.location.origin;
-                  const shareableLink = `${baseUrl}/${site.type}/${site.code}`;
-                  const isCopied = copiedId === shareableLink;
+
                   return (
                     <div key={index} className="bg-white/5 border border-white/10 rounded-2xl p-5 flex items-center justify-between group hover:bg-white/10 transition-all">
                       <div className="flex items-center gap-4">
-                        {site.status === 'responded' ? (
+                        {site.answer === 'yes' ? (
                           <LucideCheckCircle2 size={18} className="text-emerald-400" />
                         ) : (
                           <LucideTimer size={18} className="text-amber-400 animate-pulse" />
                         )}
                         <div>
                           <h4 className="font-bold text-sm">{site.title}</h4>
-                          <p className={`text-[9px] font-black uppercase tracking-widest ${site.status === 'responded' ? 'text-emerald-500' : 'text-amber-500'}`}>
-                            {site.status}
+                          <p className={`text-[9px] font-black uppercase tracking-widest ${site.answer === 'yes' ? 'text-emerald-500' : 'text-amber-500'}`}>
+                            {site.answer === 'yes' ? 'RESPONDED' : 'PENDING'}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <button
-                          onClick={() => shareWebsite(site)}
+                          onClick={() => {
+                            setSelectedSite(site);
+                            setIsSharedLink(true);
+                          }}
                           className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-rose-50 transition-all"
                         >
-                          {isCopied ? <LucideCheckCircle2 size={14} className="text-emerald-300" /> : <LucideShare2 size={14} className="text-rose-200" />}
-                          <span>{isCopied ? 'Link Copied' : 'Invite / Share'}</span>
+                          <LucideShare2 size={14} className="text-rose-200" />
+                          <span>Invite / Share</span>
                         </button>
-                        <LucideExternalLink size={16} className="text-rose-800 group-hover:text-rose-400" />
+                           <LucideExternalLink onClick={() => { window.location.href=`${baseUrl}/${site.type}/${site.code}` }} size={16} className="text-rose-800 group-hover:text-rose-400" />
+                   
                       </div>
                     </div>
                   );
@@ -253,7 +320,7 @@ const HomePage = () => {
             </div>
             <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-rose-500/20 blur-3xl" />
           </section>
-
+          
           {/* Quick Stats */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-white p-6 rounded-[2rem] border border-rose-50 text-center shadow-sm">
@@ -275,6 +342,19 @@ const HomePage = () => {
           LuvNote • Handcrafted 2026
         </p>
       </footer>
+
+      {/* Share Modal - Rendered once outside the loop */}
+      {selectedSite && (
+        <GenerateLinkAndQr 
+          isOpen={isSharedLink}
+          onClose={() => {
+            setIsSharedLink(false);
+            setSelectedSite(null);
+          }}
+          type={selectedSite.type}
+          useCode={selectedSite.code}
+        />
+      )}
     </div>
   );
 };
