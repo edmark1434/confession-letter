@@ -41,6 +41,7 @@ const LoginPage = () => {
     try {
       const result = await SignInWithGooglePopup();
       if(!result) setErrors({ server: "Google sign-in failed. Try again later." });
+      
       navigate('/home');
     } catch (error) {
       setErrors({ server: error.message }); // show friendly error

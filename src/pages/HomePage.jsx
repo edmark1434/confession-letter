@@ -8,6 +8,9 @@ import {
   LucideShare2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import {getValentineByUser} from '../repositiories/ValentineRepositories';
+import {getConfessionByUser} from '../repositiories/ConfessionsRepositories';
+import { getAuth } from 'firebase/auth';
 
 // --- STYLING: HIDE SCROLLBAR ---
 const scrollbarHideStyles = `
@@ -29,17 +32,31 @@ const COMMUNITY_EXPERIENCES = [
 ];
 
 const HomePage = () => {
+  const userId = getAuth().currentUser?.uid;
   const navigate = useNavigate();
   const [quoteIndex, setQuoteIndex] = useState(0);
   const [expIndex, setExpIndex] = useState(0);
   const [hasNotification, setHasNotification] = useState(true);
   const [copiedId, setCopiedId] = useState(null);
-  
+  const [myWebsites, setMyWebsites] = useState([]);
+  useEffect(() => {
+    const fetchData = async() =>{
+      const [res1,res2] = await Promise.all([
+        getConfessionByUser(userId),
+        getValentineByUser(userId)
+        
+      ]);
+      console.log(res1);
+      const combined = [...res1, ...res2] 
+      setMyWebsites(combined);
+    }
+    fetchData();
+  },[userId]);
   // Website data with Response Status
-  const [myWebsites] = useState([
-    { id: 'conf-1', type: 'Confession', title: 'For Sarah', status: 'responded', date: 'Jan 20' },
-    { id: 'date-1', type: 'Invitation', title: 'Sunday Coffee', status: 'pending', date: 'Jan 24' },
-  ]);
+  // const [myWebsites] = useState([
+  //   { id: 'conf-1', type: 'Confession', title: 'For Sarah', status: 'responded', date: 'Jan 20' },
+  //   { id: 'date-1', type: 'Invitation', title: 'Sunday Coffee', status: 'pending', date: 'Jan 24' },
+  // ]);
 
   // Quote Autoplay
   useEffect(() => {
@@ -53,7 +70,7 @@ const HomePage = () => {
   const prevExp = () => setExpIndex((prev) => (prev - 1 + COMMUNITY_EXPERIENCES.length) % COMMUNITY_EXPERIENCES.length);
 
   const shareWebsite = (site) => {
-    const url = `${window.location.origin}/site/${site.id}`;
+    const url = `${window.location.origin}/${site.type}/${site.code}`;
     const reset = () => setTimeout(() => setCopiedId(null), 1800);
 
     if (navigator.share) {
@@ -200,10 +217,12 @@ const HomePage = () => {
               </div>
               
               <div className="space-y-4">
-                {myWebsites.map((site) => {
-                  const isCopied = copiedId === site.id;
+                {myWebsites.map((site,index) => {
+                  const baseUrl = window.location.origin;
+                  const shareableLink = `${baseUrl}/${site.type}/${site.code}`;
+                  const isCopied = copiedId === shareableLink;
                   return (
-                    <div key={site.id} className="bg-white/5 border border-white/10 rounded-2xl p-5 flex items-center justify-between group hover:bg-white/10 transition-all">
+                    <div key={index} className="bg-white/5 border border-white/10 rounded-2xl p-5 flex items-center justify-between group hover:bg-white/10 transition-all">
                       <div className="flex items-center gap-4">
                         {site.status === 'responded' ? (
                           <LucideCheckCircle2 size={18} className="text-emerald-400" />

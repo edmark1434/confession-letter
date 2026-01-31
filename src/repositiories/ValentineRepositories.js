@@ -42,3 +42,18 @@ export async function saveValentineByCode(code, data) {
         throw error;
     }
 }
+
+export async function getValentineByUser(userId) {
+    try{
+        const q = query(valentinesCollection, where("userId", "==", userId));
+        const snap = await getDocs(q);
+        if (snap.empty) return [];
+        return snap.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+    }catch(error){
+        console.error("Error getting valentine by user:", error);
+        return [];
+    }
+}

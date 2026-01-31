@@ -6,7 +6,7 @@ export async function SignInWithGooglePopup() {
   const auth = getAuth();
   try {
     const result = await signInWithPopup(auth, provider);
-    const user = getUser(result.user.uid);
+    const user = await getUser(result.user.uid);
     if (!user) {
         await saveUser(result.user.uid,{
           email:result.user.email,

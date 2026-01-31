@@ -28,3 +28,13 @@ export async function saveConfessionByCode(code, data) {
     const docId = snap.docs[0].id;
     await setDoc(doc(conCollection, docId), data, { merge: true });
 }
+
+export async function getConfessionByUser(userId) {
+    const q = query(conCollection, where("userId", "==", userId));
+    const snap = await getDocs(q);
+    if (snap.empty) return [];
+    return snap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    }));
+}
