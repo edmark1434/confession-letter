@@ -1,12 +1,16 @@
 import { db } from "../firebase";
 import { collection, getDoc, doc, query, where, getDocs, setDoc, addDoc, serverTimestamp } from "firebase/firestore";
 import { ValentineService } from "../services/ValentineService";
+import { sendNotification } from "./NotificationRepositories";
+import { getAuth } from "firebase/auth";
 const valentinesCollection = collection(db, 'valentines');
 
 /**
  * Add a new Valentine's special page
  */
 export async function addValentineData(data) {
+    const userId = getAuth().currentUser.uid;
+    data.userId = userId;
     return await ValentineService(valentinesCollection, data);
 }
 
@@ -36,7 +40,10 @@ export async function saveValentineByCode(code, data) {
         if (snap.empty) throw new Error("Valentine not found");
         
         const docId = snap.docs[0].id;
+        const userId = snap.docs[0].data().userId;
         await setDoc(doc(valentinesCollection, docId), data, { merge: true });
+        const message = `Your respondent has responded: ${data.answer == 'yes' ? data.answer+" to your invitation to take her on a date!" : data.answer + " and she appreciate your effort"} `;
+        await sendNotification(docId, userId, message, "valentine");
     } catch (error) {
         console.error("Error saving valentine response:", error);
         throw error;
