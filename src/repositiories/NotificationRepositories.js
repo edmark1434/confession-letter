@@ -23,6 +23,7 @@ export function getNotifications(id,setNotifications) {
             });
         }
         });
+        notifications.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
         setNotifications(notifications);
     });
 }

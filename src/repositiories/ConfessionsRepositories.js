@@ -32,7 +32,7 @@ export async function saveConfessionByCode(code, data) {
     const docId = snap.docs[0].id;
     const userId = snap.docs[0].data().userId;
     await setDoc(doc(conCollection, docId), data, { merge: true });
-    const message = `Your respondent has responded: ${data.answer == 'yes' ? data.answer+" to your invitation to take her on a date!" : data.answer + " and she appreciate your effort"} `;
+    const message = `Your respondent has responded website ${code}: ${data.answer == 'yes' ? data.answer+" to your invitation to take her on a date!" : data.answer + " and she appreciate your effort"} `;
     await sendNotification(docId,userId, message, "confession");
 }
 
