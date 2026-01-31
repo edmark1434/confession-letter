@@ -118,9 +118,8 @@ const HomePage = () => {
             )}
           </div>
           <button 
-            onClick={() => navigate('/create')}
-            className="bg-rose-500 hover:bg-rose-600 text-white px-5 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-rose-200"
-          >
+            onClick={() => navigate('/create-option')}
+            className="bg-rose-500 hover:bg-rose-600 text-white px-5 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-rose-200">
             <LucidePlus size={18} /> <span className="hidden sm:inline">Create New Site</span>
           </button>
         </div>

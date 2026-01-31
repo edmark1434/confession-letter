@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import FlowerBouquet from '../../components/FlowerBouquets';
-import tuladmo from '../../assets/tuladmo.mp3';
+import FlowerBouquet from '../../../components/FlowerBouquets.jsx';
+import tuladmo from '../../../assets/tuladmo.mp3';
 import { 
   LucideHeart, LucideSparkles, LucideCalendar, 
   LucideUtensils, LucideMapPin,
   LucideArrowRight, LucideInfinity, LucideChevronLeft, LucideChevronRight,
   LucideQuote, LucideArrowDownCircle, LucideMusic, LucideVolume2, LucideLock, LucideUnlock
 } from 'lucide-react';
-import { valentineConfig } from '../../datasets/valentine-special.js';
-import { getValentineByCode, saveValentineByCode } from '../../repositiories/ValentineRepositories';
+import { valentineConfig } from '../../../datasets/valentine-special.js';
+import { getValentineByCode, saveValentineByCode } from '../../../repositiories/ValentineRepositories.js';
 import { useParams } from 'react-router-dom';
 // --- CONFIGURATION ---
 

@@ -15,7 +15,7 @@ const CreateWebsite = () => {
       bgColor: 'bg-white',
       textColor: 'text-rose-900',
       buttonStyle: 'bg-rose-100 text-rose-600',
-      path: '/confession-form'
+      path: '/create-confession'
     },
     {
       id: 'valentine',
@@ -25,7 +25,7 @@ const CreateWebsite = () => {
       bgColor: 'bg-rose-500',
       textColor: 'text-white',
       buttonStyle: 'bg-white text-rose-600',
-      path: '/valentines'
+      path: '/create-valentines'
     }
   ];
 

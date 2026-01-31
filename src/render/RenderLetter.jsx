@@ -1,143 +1,103 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Flower, Flower2, Sprout, Sun, Leaf, Trees,
-  Heart, Star, Moon, Crown, Gem, Shell,
-  Snowflake, PawPrint
-} from 'lucide-react';
-import RenderLetter from '../render/RenderLetter';
+// src/render/RenderLetter.jsx
+import React from 'react';
 
-// Updated mapping to support all 14 seal icons
-const SEAL_ICONS = {
-  rose: Flower,
-  tulip: Flower2,
-  sunflower: Sun,
-  blossom: Sprout,
-  petal: Leaf,
-  garden: Trees,
-  heart: Heart,
-  star: Star,
-  moon: Moon,
-  crown: Crown,
-  gem: Gem,
-  shell: Shell,
-  snowflake: Snowflake,
-  paw: PawPrint
-};
+const RenderLetter = ({ config }) => {
+  const getLetterBaseClass = () => {
+    // FIXED SIZE: Set explicit width/height and flex-shrink-0 to prevent any shrinking
+    const base = "w-[420px] h-[580px] relative transition-all duration-700 ease-in-out flex-shrink-0 overflow-hidden ";
 
-const LetterAction = ({ config, isEnveloped, onOpenComplete }) => {
-  const [stage, setStage] = useState('letter'); // stages: 'letter', 'sealed', 'opening'
-
-  // Use config.seal to match your latest SealChoices naming
-  const SelectedSeal = SEAL_ICONS[config.seal] || Heart;
-
-  useEffect(() => {
-    if (isEnveloped) {
-      setStage('sealed');
-    } else {
-      setStage('letter');
+    switch (config.design) {
+      case 'sticky':
+        return base + "rounded-none transform rotate-1 shadow-xl border-t-[30px] border-black/5";
+      case 'rounded':
+        return base + "rounded-[4rem] shadow-2xl border-[10px]";
+      case 'lined':
+        return base + "rounded-none shadow-lg border-l-[40px] border-red-100/10";
+      case 'dotted':
+        return base + "rounded-sm shadow-2xl border-[1px]";
+      case 'scroll':
+        return base + "rounded-none border-x-[25px] border-black/10 shadow-inner";
+      case 'card':
+        return base + "rounded-2xl shadow-2xl border-none";
+      case 'classic':
+      default:
+        return base + "rounded-sm shadow-2xl border-[1px]";
     }
-  }, [isEnveloped]);
+  };
 
-  const handleOpen = () => {
-    setStage('opening');
-    // Sequence: 1. Flap opens -> 2. Letter slides out -> 3. Envelope vanishes
-    setTimeout(() => {
-      onOpenComplete();
-      setStage('letter');
-    }, 1250);
+  const getCustomStyles = () => {
+    const styles = {
+      backgroundColor: config.letterColor,
+      fontFamily: config.font,
+      color: config.textColor,
+      borderColor: `${config.textColor}20`,
+    };
+
+    // Special styles for lined design
+    if (config.design === 'lined') {
+      const lineColor = `${config.textColor}20`; // 20% opacity
+      const lineHeight = '2.2rem';
+      const lineSpacing = '0.1rem';
+
+      styles.background = `linear-gradient(
+        to bottom,
+        transparent,
+        transparent calc(${lineHeight} - 1px),
+        ${lineColor} calc(${lineHeight} - 1px),
+        ${lineColor} ${lineHeight}
+      )`;
+      styles.backgroundSize = `100% ${lineHeight}`;
+      styles.lineHeight = lineHeight;
+      styles.paddingTop = lineSpacing;
+      styles.backgroundRepeat = 'repeat-y';
+    }
+
+    if (config.design === 'dotted') {
+      styles.backgroundImage = `radial-gradient(${config.textColor}33 1px, transparent 1px)`;
+      styles.backgroundSize = '20px 20px';
+    }
+
+    return styles;
+  };
+
+  // Get text alignment based on design
+  const getTextAlignment = () => {
+    return "text-left"; // Force left alignment for all designs
+  };
+
+  // Get text wrapping style
+  const getTextWrapping = () => {
+    return "break-words overflow-wrap-anywhere hyphens-auto"; // Better text wrapping
   };
 
   return (
-    <div className="relative flex items-center justify-center w-full min-h-[750px] perspective-1000">
-      <AnimatePresence mode="wait">
-        {stage === 'letter' ? (
-          // --- VIEW 1: STANDALONE LETTER ---
-          <motion.div
-            key="standalone"
-            initial={{ opacity: 0, y: 30, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 100, scale: 0.8 }}
-            transition={{ type: "spring", damping: 20, stiffness: 100 }}
-          >
-            <RenderLetter config={config} />
-          </motion.div>
-        ) : (
-          // --- VIEW 2 & 3: THE ENVELOPE SYSTEM ---
-          <motion.div
-            key="envelope-system"
-            initial={{ opacity: 0, scale: 0.7, y: 100 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, transition: { delay: 0.8 } }}
-            className="relative w-[450px] h-[320px]"
-          >
-            {/* ENVELOPE BACK BASE */}
-            <div
-              className="absolute inset-0 rounded-2xl shadow-2xl z-0 transition-colors duration-500"
-              style={{ backgroundColor: config.envelopeColor, filter: 'brightness(0.9)' }}
-            />
-
-            {/* THE LETTER (Hidden inside, slides up on reveal) */}
-            <motion.div
-              initial={{ y: 0, scale: 0.95, opacity: 0 }}
-              animate={stage === 'opening' ? { y: -380, scale: 1, opacity: 1 } : { y: 0, opacity: 0 }}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute inset-x-4 top-4 z-5"
-            >
-               <RenderLetter config={config} />
-            </motion.div>
-
-            {/* ENVELOPE FRONT BODY */}
-            <div
-              className="absolute inset-0 z-10 transition-colors duration-500"
-              style={{
-                clipPath: 'polygon(0% 0%, 50% 50%, 100% 0%, 100% 100%, 0% 100%)',
-                backgroundColor: config.envelopeColor,
-                boxShadow: 'inset 0 0 40px rgba(0,0,0,0.1)'
-              }}
-            />
-
-            {/* TOP FLAP (Folds up) */}
-            <motion.div
-              initial={{ rotateX: 0 }}
-              animate={stage === 'opening' ? { rotateX: 160, zIndex: 0 } : { rotateX: 0, zIndex: 20 }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="absolute inset-0 origin-top z-20"
-              style={{
-                clipPath: 'polygon(0% 0%, 100% 0%, 50% 50%)',
-                backgroundColor: config.envelopeColor,
-                filter: 'brightness(0.97)',
-                borderTop: '1px solid rgba(255,255,255,0.2)'
-              }}
-            >
-              <div className="w-full h-full bg-black/5" />
-            </motion.div>
-
-            {/* WAX SEAL (Uses config.sealColor and config.sealIconColor) */}
-            <motion.button
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={handleOpen}
-              animate={stage === 'opening' ? { opacity: 0, scale: 0, rotate: 20 } : { opacity: 1, scale: 1 }}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 w-20 h-20 rounded-full shadow-2xl flex items-center justify-center cursor-pointer border-4 border-white/30 group transition-colors duration-500"
-              style={{ backgroundColor: config.sealColor }}
-            >
-              <div className="drop-shadow-md group-hover:animate-pulse">
-                <SelectedSeal size={42} strokeWidth={1.5} style={{ color: config.sealIconColor }} />
-              </div>
-            </motion.button>
-
-            {/* Opening Instructions */}
-            <div className="absolute -bottom-16 left-0 w-full text-center pointer-events-none">
-               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#FFB3C6] animate-pulse">
-                 {stage === 'opening' ? 'Unveiling...' : 'Tap seal to open'}
-               </p>
-            </div>
-          </motion.div>
+    <div className={getLetterBaseClass()} style={getCustomStyles()}>
+      <div className={`z-10 relative w-full h-full p-10 flex flex-col ${getTextAlignment()}`}>
+        {config.title && (
+          <h2 className="text-2xl font-black mb-6 uppercase tracking-tight break-words">
+            {config.title}
+          </h2>
         )}
-      </AnimatePresence>
+
+        {/* Message with proper text wrapping and alignment */}
+        <div className={`text-lg md:text-xl whitespace-pre-wrap leading-relaxed flex-1 overflow-y-auto scrollbar-hide ${getTextWrapping()}`}>
+          {config.message || "Your message will appear here..."}
+        </div>
+
+        <div className="text-right mt-6 opacity-60 italic font-medium">
+          — Forever Yours
+        </div>
+      </div>
+
+      {/* SMOOTH ANIMATION: Decorative bottom slides up and fades in for 'Card' design */}
+      <div
+        className={`absolute bottom-0 left-0 w-full h-32 pointer-events-none transition-all duration-700 ease-in-out ${
+          config.design === 'card' ? 'opacity-20 translate-y-0' : 'opacity-0 translate-y-full'
+        }`}
+        style={{ backgroundColor: config.textColor }}
+      />
     </div>
   );
 };
 
-export default LetterAction;
+export default RenderLetter;

@@ -9,9 +9,12 @@ import ConfessionSite from './pages/ConfessionSite.jsx';
 import LoginPage from './auth/Login.jsx';
 import SignupPage from './auth/Signup.jsx';
 import HomePage from './pages/HomePage.jsx';
-import ValentinesSpecial from './pages/template/ValentinesSpecial.jsx';
+import ValentinesSpecial from './pages/template/valentines/ValentinesSpecial.jsx';
 import Create from './pages/Create.jsx';
-import ConfessionStory from './pages/template/ConfessionSitePreview.jsx';
+import ConfessionStory from './pages/template/confession/ConfessionSitePreview.jsx';
+import CreateWebsite from "./pages/CreateWebsite.jsx";
+import CreateValentines from "./pages/CreateValentines.jsx";
+import CreateConfession from "./pages/CreateConfession.jsx";
 const RouterConfig = () => {
   const location = useLocation();
 
@@ -27,7 +30,12 @@ const RouterConfig = () => {
         <Route path="confession" element={<ConfessionSite />} />
         <Route path="confession-preview" element={<ConfessionStory />} />
         <Route path="valentines" element={<ValentinesSpecial />} />
+
         <Route path="create" element={<Create />} />
+        <Route path="create-option" element={<CreateWebsite />} />
+
+        <Route path="create-confession" element={<CreateConfession />} />
+        <Route path="create-valentines" element={<CreateValentines />} />
       </Route>
     </Routes>
   );

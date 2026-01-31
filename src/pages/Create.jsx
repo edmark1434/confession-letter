@@ -7,8 +7,8 @@ import {
 } from 'lucide-react';
 
 import ValentinesSpecialForms from './Forms/ValentinesSpecialForms.jsx';
-import ValentinesSpecial from './template/ValentinesSpecial.jsx';
-import ConfessionStory from './template/ConfessionSitePreview.jsx';
+import ValentinesSpecial from './template/valentines/ValentinesSpecial.jsx';
+import ConfessionStory from './template/confession/ConfessionSitePreview.jsx';
 import ConfessionForms from './Forms/ConfessionForms.jsx';
 import forsomeonespecial from '../assets/forsomeonespecial.png';
 import valentinesspecial from '../assets/valentine-special.png';

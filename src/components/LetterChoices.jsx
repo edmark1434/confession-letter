@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   FileText, StickyNote, Square, List,
-  CircleEllipsis, Coffee
+  CircleEllipsis, CreditCard // Changed icon for Card
 } from 'lucide-react';
 
 export const LETTER_DESIGNS = [
@@ -10,7 +10,7 @@ export const LETTER_DESIGNS = [
   { id: 'rounded', name: 'Rounded', icon: <Square /> },
   { id: 'lined', name: 'Lined', icon: <List /> },
   { id: 'dotted', name: 'Dotted', icon: <CircleEllipsis /> },
-  { id: 'coffee', name: 'Coffee', icon: <Coffee /> },
+  { id: 'card', name: 'Card', icon: <CreditCard /> }, // Renamed from coffee
 ];
 
 const LetterChoices = ({ selected, onSelect }) => (

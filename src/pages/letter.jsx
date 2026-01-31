@@ -32,6 +32,23 @@ const LetterPage = () => {
   const deferredConfig = useDeferredValue(config);
   const FONTS = ['Quicksand', 'Great Vibes', 'Dancing Script', 'Pacifico'];
 
+  // Handle text input with proper wrapping
+  const handleTitleChange = (e) => {
+    const value = e.target.value;
+    // Limit to 35 characters
+    if (value.length <= 35) {
+      setConfig({...config, title: value});
+    }
+  };
+
+  const handleMessageChange = (e) => {
+    const value = e.target.value;
+    // Limit to 164 characters
+    if (value.length <= 164) {
+      setConfig({...config, message: value});
+    }
+  };
+
   return (
     <div className="relative min-h-screen w-full flex flex-col overflow-hidden">
       {config.animation === 'hearts' && <HeartBg count={15} />}
@@ -101,10 +118,34 @@ const LetterPage = () => {
 
             {activeTab === 'content' && (
               <div className="space-y-6">
-                <section><div className="flex justify-between items-end mb-2"><label className="text-[#FFB3C6] font-black text-[10px] uppercase">Letter Title</label><span className="text-[9px] font-bold text-[#FFB3C6]">{config.title.length}/35</span></div>
-                <input type="text" maxLength={35} className="w-full p-3 rounded-xl bg-white border-2 border-[#FFD1DC] font-bold text-[#FF85A1]" placeholder="Enter title..." value={config.title} onChange={(e) => setConfig({...config, title: e.target.value})} /></section>
-                <section><div className="flex justify-between items-end mb-2"><label className="text-[#FFB3C6] font-black text-[10px] uppercase">Message</label><span className="text-[9px] font-bold text-[#FFB3C6]">{config.message.length}/164</span></div>
-                <textarea maxLength={164} className="w-full h-48 p-4 rounded-2xl bg-white border-2 border-[#FFD1DC] font-medium text-[#FF85A1] resize-none" placeholder="Write your heart out..." value={config.message} onChange={(e) => setConfig({...config, message: e.target.value})} /></section>
+                <section>
+                  <div className="flex justify-between items-end mb-2">
+                    <label className="text-[#FFB3C6] font-black text-[10px] uppercase">Letter Title</label>
+                    <span className="text-[9px] font-bold text-[#FFB3C6]">{config.title.length}/35</span>
+                  </div>
+                  <input
+                    type="text"
+                    maxLength={35}
+                    className="w-full p-3 rounded-xl bg-white border-2 border-[#FFD1DC] font-bold text-[#FF85A1] placeholder:text-[#FFD1DC]"
+                    placeholder="Enter title..."
+                    value={config.title}
+                    onChange={handleTitleChange}
+                  />
+                </section>
+                <section>
+                  <div className="flex justify-between items-end mb-2">
+                    <label className="text-[#FFB3C6] font-black text-[10px] uppercase">Message</label>
+                    <span className="text-[9px] font-bold text-[#FFB3C6]">{config.message.length}/164</span>
+                  </div>
+                  <textarea
+                    maxLength={164}
+                    className="w-full h-48 p-4 rounded-2xl bg-white border-2 border-[#FFD1DC] font-medium text-[#FF85A1] resize-none placeholder:text-[#FFD1DC] whitespace-pre-wrap overflow-wrap-break-word"
+                    placeholder="Write your heart out..."
+                    value={config.message}
+                    onChange={handleMessageChange}
+                    style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
+                  />
+                </section>
               </div>
             )}
           </div>

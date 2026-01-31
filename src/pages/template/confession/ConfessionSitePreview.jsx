@@ -1,14 +1,14 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import FlowerBouquet from '../../components/FlowerBouquets';
-import tuladmo from '../../assets/tuladmo.mp3';
+import FlowerBouquet from '../../../components/FlowerBouquets.jsx';
+import tuladmo from '../../../assets/tuladmo.mp3';
 import { 
   LucideHeart, LucideSparkles, LucideCalendar, 
   LucideStars, LucideQuote, LucideCoffee, 
   LucideBookOpen, LucideArrowDownCircle, LucideMail, LucideMapPin,
   LucideMusic, LucideVolume2, LucideArrowLeft,LucideUtensils
 } from 'lucide-react';
-import {getConfessionByCode, saveConfessionByCode} from '../../repositiories/ConfessionsRepositories';
+import {getConfessionByCode, saveConfessionByCode} from '../../../repositiories/ConfessionsRepositories.js';
 import { useNavigate, useParams } from 'react-router-dom';
 const defaultData = {
     title: "For Someone Special",
