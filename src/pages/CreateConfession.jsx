@@ -7,9 +7,11 @@ import ConfessionForms from './Forms/ConfessionForms.jsx';
 import ConfessionStory from './template/confession/ConfessionSitePreview.jsx';
 import ConfessionModernMinimalist from "./template/confession/ConfessionModernMinimalist.jsx";
 import ConfessionRetroVintage from "./template/confession/ConfessionRetroVintage.jsx";
+import ConfessionSky from "./template/confession/ConfessionSky.jsx";
 import retroThumbnail from '../assets/img_retro.png'; // You'll need to add this image
 import modernThumbnail from '../assets/img_modern.png';
 import forsomeonespecial from '../assets/forsomeonespecial.png';
+import skyThumbnail from '../assets/img_sky.png';
 
 // Define different confession-specific templates here
 const CONFESSION_TEMPLATES = [
@@ -19,6 +21,27 @@ const CONFESSION_TEMPLATES = [
     description: 'A multi-page journey through your feelings with a hero image.',
     thumbnail: forsomeonespecial,
     previewComponent: ConfessionStory,
+    config: {
+      recipientName: "",
+      title: "For Someone Special",
+      imageSection2: "",
+      littleThings: [
+        { title: "Your Smile", desc: "The way it lights up your whole face." },
+        { title: "Your Kindness", desc: "How you treat the world with such a gentle heart." },
+        { title: "Your Mind", desc: "The way you think and the stories you share." }
+      ],
+      letterBody: "I've sat down to write this a dozen times, but words always seem to fall short...",
+      invitationDate: "",
+      invitationLocation: "",
+      footerText: "Designed with Love • 2026"
+    }
+  },
+    {
+    id: 'sky',
+    name: 'Soft Sky',
+    description: 'A multi-page journey through your feelings with a hero image.',
+    thumbnail: skyThumbnail,
+    previewComponent: ConfessionSky,
     config: {
       recipientName: "",
       title: "For Someone Special",
