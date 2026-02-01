@@ -295,7 +295,7 @@ const HomePage = () => {
                         <div>
                           <h4 className="font-bold text-sm">{site.title}</h4>
                           <p className={`text-[9px] font-black uppercase tracking-widest ${site.answer === 'yes' ? 'text-emerald-500' : 'text-amber-500'}`}>
-                            {site.answer === 'yes' ? 'RESPONDED' : 'PENDING'}
+                            {site.answer === 'yes' ? 'RESPONDED: ' + site.answer : 'PENDING'}
                           </p>
                         </div>
                       </div>

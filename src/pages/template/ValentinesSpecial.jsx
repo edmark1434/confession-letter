@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FlowerBouquet from '../../components/FlowerBouquets';
-import tuladmo from '../../assets/tuladmo.mp3';
+import palagi from '../../assets/palagi.mp3';
 import { 
   LucideHeart, LucideSparkles, LucideCalendar, 
   LucideUtensils, LucideMapPin,
   LucideArrowRight, LucideInfinity, LucideChevronLeft, LucideChevronRight,
   LucideQuote, LucideArrowDownCircle, LucideMusic, LucideVolume2, LucideLock, LucideUnlock
 } from 'lucide-react';
-import { valentineConfig } from '../../datasets/valentine-special.js';
 import { getValentineByCode, saveValentineByCode } from '../../repositiories/ValentineRepositories';
 import { useParams } from 'react-router-dom';
 // --- CONFIGURATION ---
@@ -45,6 +44,63 @@ const fadeInUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
 };
 
+const DEFAULT_VALENTINE_CONFIG = {
+  passcode: "2020",
+  anniversaryDate: "2020-02-14",
+  letterBody: "Every day with you feels like a miracle. Thank you for the laughter, the warmth, and the love you give so freely. I love you more than words can say.",
+  invitationType: "Romantic Dinner",
+  invitationDate: "Feb 14, 2026",
+  invitationLocation: "Favorite Restaurant",
+  audioUrl: palagi,
+  memories: [
+    {
+      img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop",
+      note: "Our first date — nervous smiles and endless conversation."
+    },
+    {
+      img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop",
+      note: "That sunset walk where everything felt so right."
+    },
+    {
+      img: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=1200&auto=format&fit=crop",
+      note: "A quiet moment that turned into a beautiful memory."
+    }
+  ]
+};
+
+const buildValentineConfig = (rawConfig) => {
+  if (!rawConfig) return DEFAULT_VALENTINE_CONFIG;
+
+  const pick = (value, fallback) =>
+    value === undefined || value === null || value === "" ? fallback : value;
+
+  const baseMemories = DEFAULT_VALENTINE_CONFIG.memories;
+  const incomingMemories = Array.isArray(rawConfig.memories)
+    ? rawConfig.memories
+    : [];
+
+  const memories = baseMemories.map((memory, index) => {
+    const incoming = incomingMemories[index] || {};
+    return {
+      img: pick(incoming.img, memory.img),
+      note: pick(incoming.note, memory.note)
+    };
+  });
+
+  return {
+    ...DEFAULT_VALENTINE_CONFIG,
+    ...rawConfig,
+    passcode: pick(rawConfig.passcode, DEFAULT_VALENTINE_CONFIG.passcode),
+    anniversaryDate: pick(rawConfig.anniversaryDate, DEFAULT_VALENTINE_CONFIG.anniversaryDate),
+    letterBody: pick(rawConfig.letterBody, DEFAULT_VALENTINE_CONFIG.letterBody),
+    invitationType: pick(rawConfig.invitationType, DEFAULT_VALENTINE_CONFIG.invitationType),
+    invitationDate: pick(rawConfig.invitationDate, DEFAULT_VALENTINE_CONFIG.invitationDate),
+    invitationLocation: pick(rawConfig.invitationLocation, DEFAULT_VALENTINE_CONFIG.invitationLocation),
+    audioUrl: pick(rawConfig.audioUrl, DEFAULT_VALENTINE_CONFIG.audioUrl),
+    memories
+  };
+};
+
 const ValentinesSpecial = ({externalConfig}) => {
   const { id } = useParams();
   const [isStarted, setIsStarted] = useState(false);
@@ -53,12 +109,18 @@ const ValentinesSpecial = ({externalConfig}) => {
   const [error, setError] = useState(false);
   const [currentPhoto, setCurrentPhoto] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [data, setData] = useState(valentineConfig);
+  const [data, setData] = useState(buildValentineConfig());
   const [isResponded, setIsResponded] = useState(false);
   const [currentSection, setCurrentSection] = useState("start"); // Track current section
   const [autoScroll, setAutoScroll] = useState(true); // Enable auto-scroll
   const audioRef = useRef(null);
-  const config = externalConfig || data;
+  const config = buildValentineConfig(externalConfig || data);
+  const resolvedAudioUrl = (config.audioUrl?.trim() || "") === "" ? palagi : config.audioUrl.trim();
+  const isSpotifyLink = /open\.spotify\.com\//i.test(resolvedAudioUrl);
+  const spotifyEmbedUrl = isSpotifyLink
+    ? resolvedAudioUrl.replace("open.spotify.com/", "open.spotify.com/embed/")
+    : null;
+  const useAudioTag = !isSpotifyLink;
 
   // Fetch data from Firebase if id is provided
   useEffect(() => {
@@ -67,26 +129,26 @@ const ValentinesSpecial = ({externalConfig}) => {
         if (id) {
           // Check sessionStorage first
           if (sessionStorage.getItem('valentine' + id)) {
-            setData(JSON.parse(sessionStorage.getItem('valentine' + id)));
+            setData(buildValentineConfig(JSON.parse(sessionStorage.getItem('valentine' + id))));
             return;
           }
           // Fetch from Firebase
           const result = await getValentineByCode(id);
           if (result) {
             sessionStorage.setItem('valentine' + id, JSON.stringify(result));
-            setData(result);
+            setData(buildValentineConfig(result));
             if (result.answer) {
               setIsResponded(true);
             }
           } else {
             console.warn("No valentine found for the provided code.");
-            setData(valentineConfig);
+            setData(buildValentineConfig());
           }
         } else {
-          setData(valentineConfig);
+          setData(buildValentineConfig());
         }
       } else {
-        setData(externalConfig ?? valentineConfig);
+        setData(buildValentineConfig(externalConfig));
       }
     };
     getData();
@@ -110,6 +172,7 @@ const ValentinesSpecial = ({externalConfig}) => {
   };
 
   const toggleMusic = () => {
+    if (!audioRef.current) return;
     if (isPlaying) audioRef.current.pause();
     else audioRef.current.play();
     setIsPlaying(!isPlaying);
@@ -141,7 +204,19 @@ const ValentinesSpecial = ({externalConfig}) => {
       <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; } .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
       
       <ValentineOverlay />
-      <audio ref={audioRef} src={config.audioUrl || valentineConfig.audioUrl} loop />
+      {useAudioTag ? (
+        <audio ref={audioRef} src={resolvedAudioUrl} loop />
+      ) : (
+        <div className="fixed inset-0 -z-10">
+          <iframe
+            className="w-full h-full"
+            src={spotifyEmbedUrl}
+            title="Background Music"
+            allow="autoplay; encrypted-media"
+            referrerPolicy="no-referrer"
+          />
+        </div>
+      )}
 
       {/* --- MUSIC PLAYER --- */}
       {isUnlocked && (
@@ -209,6 +284,7 @@ const ValentinesSpecial = ({externalConfig}) => {
         <div className="overflow-x-hidden">
           {/* Hero Header */}
           <motion.section 
+            id="hero"
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}
             className="h-screen flex flex-col items-center justify-center text-center p-6"
           >
