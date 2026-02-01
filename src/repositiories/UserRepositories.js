@@ -8,6 +8,7 @@ import {
   getDocs,
   serverTimestamp
 } from "firebase/firestore";
+import { signOut } from "firebase/auth";
 
 import { db,auth } from "../firebase.jsx";
 import { login, register} from "../services/EmailAndPasswordAuth.jsx";
@@ -63,6 +64,14 @@ export async function registerUser(userInfo) {
   try{
     return await register(userInfo,auth,db);
   }catch(error){
+    throw error;
+  }
+}
+
+export async function logoutUser() {
+  try {
+    await signOut(auth);
+  } catch (error) {
     throw error;
   }
 }
