@@ -8,6 +8,7 @@ import {
   LucideShare2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { logoutUser } from '../repositiories/UserRepositories.js';
 import {getValentineByUser} from '../repositiories/ValentineRepositories';
 import {getConfessionByUser} from '../repositiories/ConfessionsRepositories';
 import { getAuth } from 'firebase/auth';
@@ -85,6 +86,15 @@ const HomePage = () => {
 
     setMessage('');
   }
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   const handleHeartMessage = async (messageData) => {
     if (!messageData) return;
@@ -179,6 +189,12 @@ const HomePage = () => {
             className="bg-rose-500 hover:bg-rose-600 text-white px-5 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-rose-200"
           >
             <LucidePlus size={18} /> <span className="hidden sm:inline">Create New Site</span>
+          </button>
+          <button
+            onClick={handleLogout}
+            className="bg-white/80 hover:bg-white text-rose-600 px-5 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 transition-all active:scale-95 border border-rose-200"
+          >
+            Log out
           </button>
         </div>
       </nav>
