@@ -322,7 +322,7 @@ const HomePage = () => {
           </section>
           
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 gap-4">
+          <div hidden={true} className="grid grid-cols-2 gap-4">
             <div className="bg-white p-6 rounded-[2rem] border border-rose-50 text-center shadow-sm">
               <LucideHeart size={20} className="mx-auto mb-2 text-rose-500" fill="currentColor" />
               <p className="text-2xl font-bold text-rose-950">2.4k</p>
