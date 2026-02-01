@@ -36,14 +36,14 @@ function App() {
           <div tabIndex={0} role="button" className="btn btn-ghost btn-circle text-[#FF85A1]">
             <Menu size={24} />
           </div>
-          <ul tabIndex={0} className="dropdown-content z-[30] menu p-4 shadow-xl rounded-[2rem] w-52 mt-4 border-4 border-white bg-white/90 backdrop-blur-md space-y-2">
+          <ul tabIndex={0} className="dropdown-content z-[30] menu p-4 shadow-xl rounded-[2rem] w-56 mt-4 border-4 border-white bg-white/90 backdrop-blur-md space-y-2">
             <li>
-              <Link to="/login" className="flex items-center gap-3 text-[#FF85A1] font-bold p-3 rounded-2xl">
+              <Link to="/login" className="flex w-full items-center gap-3 text-[#FF85A1] font-bold p-3 rounded-2xl">
                 <LogIn size={18} /> Login
               </Link>
             </li>
             <li>
-              <Link to="/signup" className="flex items-center gap-3 text-[#FF85A1] font-bold p-3 rounded-2xl">
+              <Link to="/signup" className="btn-bubbly flex w-full items-center justify-center gap-3 bg-[#FF85A1] text-white font-bold py-2 px-4 rounded-xl border-none">
                 <UserPlus size={18} /> SignUp
               </Link>
             </li>
@@ -68,9 +68,12 @@ function App() {
             </p>
           </header>
 
-          <button className="btn-bubbly w-full py-4 bg-gradient-to-r from-[#FF85A1] to-[#FFB3C6] text-white font-black text-lg rounded-xl border-none shadow-md">
-              <Link to="/login" className="w-full">Create a love website</Link>
-          </button>
+          <Link
+            to="/login"
+            className="btn-bubbly w-full py-4 bg-gradient-to-r from-[#FF85A1] to-[#FFB3C6] text-white font-black text-base sm:text-lg rounded-xl border-none shadow-md flex items-center justify-center"
+          >
+            Create a love website
+          </Link>
         </div>
       </main>
     </div>

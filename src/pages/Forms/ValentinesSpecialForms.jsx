@@ -226,7 +226,7 @@ const ValentinesSpecialForms = ({config, setConfig}) => {
             className={`w-full py-5 rounded-full font-bold flex items-center justify-center gap-2 transition-all shadow-lg ${
                 isSubmitting
                 ? 'bg-slate-400 text-white cursor-not-allowed'
-                : 'bg-rose-500 text-white hover:bg-rose-600 active:scale-95'
+                : 'bg-[#FF85A1] text-white hover:bg-[#ff6b8e] active:scale-95'
             }`}
             >
             {isSubmitting ? (

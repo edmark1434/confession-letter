@@ -242,7 +242,7 @@ const ValentinesSpecial = ({externalConfig}) => {
             <LucideHeart className="mx-auto text-rose-500 mb-8 animate-pulse" size={48} fill="#f43f5e" />
             <h1 className="text-4xl md:text-7xl font-serif italic text-rose-900 leading-tight mb-6">"In all the world, there is no heart for me like yours."</h1>
             <p className="text-rose-400 tracking-[0.4em] uppercase text-xs mb-12">— Maya Angelou</p>
-            <button onClick={() => setIsStarted(true)} className="group flex items-center gap-4 mx-auto text-rose-600 font-bold tracking-widest border-b-2 border-rose-300 pb-2">
+            <button onClick={() => setIsStarted(true)} className="group flex items-center gap-4 mx-auto text-rose-600 font-bold tracking-widest border-b-2 border-rose-300 pb-2 text-xs sm:text-sm">
               OUR JOURNEY STARTS HERE <LucideArrowRight className="group-hover:translate-x-2 transition-transform"/>
             </button>
           </div>
@@ -271,7 +271,7 @@ const ValentinesSpecial = ({externalConfig}) => {
                 placeholder="Hint: YYYY" maxLength={4}
                 className="w-full text-center text-2xl tracking-[0.5em] py-3 border-b-2 border-rose-200 focus:border-rose-500 outline-none mb-8 text-rose-900 font-bold bg-transparent"
               />
-              <button type="submit" className="w-full bg-rose-500 text-white py-4 rounded-full font-bold shadow-lg hover:bg-rose-600 flex items-center justify-center gap-2 transition-all">
+              <button type="submit" className="w-full bg-[#FF85A1] text-white py-4 rounded-full font-bold shadow-lg hover:bg-[#ff6b8e] flex items-center justify-center gap-2 transition-all">
                 UNLOCK <LucideUnlock size={18} />
               </button>
             </form>
@@ -372,10 +372,10 @@ const ValentinesSpecial = ({externalConfig}) => {
                     }
                   }}
                   disabled={isResponded}
-                  className={`w-full lg:w-max px-16 py-6 rounded-full font-bold text-xl shadow-xl shadow-rose-200 transition-colors mx-auto lg:mx-0 ${
+                  className={`w-full lg:w-max px-10 sm:px-16 py-4 sm:py-6 rounded-full font-bold text-base sm:text-xl shadow-xl shadow-rose-200 transition-colors mx-auto lg:mx-0 ${
                     isResponded 
                       ? 'bg-gray-400 cursor-not-allowed' 
-                      : 'bg-rose-500 text-white hover:bg-rose-600'
+                      : 'bg-[#FF85A1] text-white hover:bg-[#ff6b8e]'
                   }`}
                 >
                   {isResponded ? "Already Responded ✓" : "YES! ❤️"}

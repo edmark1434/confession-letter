@@ -191,14 +191,14 @@ const ConfessionForms = ({config, setConfig}) => {
             </div>
 
             <button 
-                type="button"
-                onClick={SaveAndGenerateLink}
-                disabled={isSubmitting}
-                className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all ${
-                isSubmitting
-                    ? 'bg-slate-400 text-white cursor-not-allowed opacity-75'
-                    : 'bg-slate-900 text-white hover:bg-slate-800'
-                }`}
+              type="button"
+              onClick={SaveAndGenerateLink}
+              disabled={isSubmitting}
+              className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all ${
+              isSubmitting
+                ? 'bg-slate-400 text-white cursor-not-allowed opacity-75'
+                : 'bg-[#FF85A1] text-white hover:bg-[#ff6b8e]'
+              }`}
             >
                 {isSubmitting ? (
                 <>

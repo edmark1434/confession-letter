@@ -326,7 +326,7 @@ const ConfessionStory = ({ externalConfig }) => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => scrollToSection('likes')}
-              className="px-8 py-4 bg-rose-500 text-white rounded-full text-xs font-bold shadow-lg hover:bg-rose-600 transition-all flex items-center gap-3 mx-auto"
+              className="px-6 sm:px-8 py-3 sm:py-4 bg-[#FF85A1] text-white rounded-full text-xs sm:text-sm font-bold shadow-lg hover:bg-[#ff6b8e] transition-all flex items-center gap-3 mx-auto"
             >
               OPEN CHAPTER 1 <LucideBookOpen size={16} />
             </motion.button>
@@ -412,12 +412,12 @@ const ConfessionStory = ({ externalConfig }) => {
                   {data.letterBody ?? defaultData.letterBody}
               </motion.div>
               
-              <motion.button 
+                <motion.button 
                   variants={itemVariants}
                   whileHover={{ scale: 1.05 }}
                   onClick={() => { setSectionStep((s) => Math.max(s, 3)); scrollToSection('date'); }}
-                  className="mt-12 px-10 py-4 border-2 border-rose-200 text-rose-500 rounded-full font-bold text-sm hover:bg-rose-50 transition-all flex items-center gap-3"
-              >
+                  className="mt-12 px-8 sm:px-10 py-3 sm:py-4 border-2 border-rose-200 text-rose-500 rounded-full font-bold text-xs sm:text-sm hover:bg-rose-50 transition-all flex items-center gap-3"
+                >
                   I HAVE ONE FINAL QUESTION <LucideHeart size={16} fill="currentColor" />
               </motion.button>
             </motion.div>
@@ -459,11 +459,11 @@ const ConfessionStory = ({ externalConfig }) => {
                         className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start items-center"
                       >
                         <motion.button 
-                          whileHover={{ scale: 1.1, backgroundColor: '#e11d48' }}
-                          whileTap={{ scale: 0.9 }}
+                          whileHover={{ scale: 1.05, backgroundColor: '#ff6b8e' }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={handleYesClick}
                           disabled={isLoading}
-                          className="px-16 py-6 bg-rose-500 text-white rounded-full font-bold shadow-xl text-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
+                          className="px-10 sm:px-16 py-4 sm:py-6 bg-[#FF85A1] text-white rounded-full font-bold shadow-xl text-base sm:text-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
                         >
                           {isLoading ? (
                             <>
@@ -480,7 +480,7 @@ const ConfessionStory = ({ externalConfig }) => {
                         <button 
                           onClick={handleTalkMoreClick}
                           disabled={isLoading}
-                          className="text-rose-400 font-semibold italic underline underline-offset-4 hover:text-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="text-rose-400 font-semibold italic underline underline-offset-4 hover:text-[#ff6b8e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {isLoading ? "Processing..." : "Let's talk more..."}
                         </button>
@@ -615,7 +615,7 @@ const ConfessionStory = ({ externalConfig }) => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setShowSurpriseModal(false)}
-                  className="px-10 py-4 bg-rose-500 text-white rounded-full font-bold shadow-lg hover:bg-rose-600 transition-all"
+                  className="px-8 sm:px-10 py-3 sm:py-4 bg-[#FF85A1] text-white rounded-full font-bold shadow-lg hover:bg-[#ff6b8e] transition-all"
                 >
                   Close 💖
                 </motion.button>
